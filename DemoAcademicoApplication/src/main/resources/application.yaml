@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # Zona de conexión a BD (H2 en memoria)
+    url: jdbc:h2:mem:demoacademico;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    # Crea/actualiza tablas según @Entity
+    hibernate:
+      ddl-auto: update
+    # Visualizar SQL en consola (didáctico)
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+    # Garantiza que primero se creen las tablas (Hibernate)
+    # y después se ejecute data.sql
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
