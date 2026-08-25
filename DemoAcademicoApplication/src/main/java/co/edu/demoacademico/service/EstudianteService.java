@@ -1,6 +1,10 @@
+// En: src/main/java/co/edu/demoacademico/service/EstudianteService.java
+
 package co.edu.demoacademico.service;
+
 import co.edu.demoacademico.model.Estudiante;
 import co.edu.demoacademico.repository.EstudianteRepository;
+import co.edu.demoacademico.exception.EmailDuplicadoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,32 +20,25 @@ public class EstudianteService {
     }
 
     public Estudiante crear(Estudiante estudiante) {
-
-        // ----------------------------
-        // ZONA DE LÓGICA DE NEGOCIO:
-        // Regla: email único
-        // ----------------------------
         repository.findByEmail(estudiante.getEmail())
                 .ifPresent(e -> {
-                    throw new IllegalStateException("Email ya registrado");
+                    throw new EmailDuplicadoException(
+                            "El email '" + estudiante.getEmail() + "' ya está registrado. " +
+                                    "Por favor, use un correo electrónico diferente."
+                    );
                 });
-
-        // ============================
-        // ZONA DE ACCESO A LA BD:
-        // Persistencia vía Repository
-        // ============================
         return repository.save(estudiante);
     }
 
     public List<Estudiante> listar() {
-        // ============================
-        // ZONA DE ACCESO A LA BD:
-        // Consulta vía Repository
-        // ============================
         return repository.findAll();
     }
 
-    public Optional<Estudiante> buscarPorEmail(String email){
+    // ============================
+    // NUEVO MÉTODO: Búsqueda por email
+    // ZONA DE ACCESO A LA BD
+    // ============================
+    public Optional<Estudiante> buscarPorEmail(String email) {
         return repository.findByEmail(email);
     }
 }

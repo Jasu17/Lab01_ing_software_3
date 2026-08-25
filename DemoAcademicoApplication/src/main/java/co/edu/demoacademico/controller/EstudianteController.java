@@ -1,4 +1,5 @@
 package co.edu.demoacademico.controller;
+
 import co.edu.demoacademico.model.Estudiante;
 import co.edu.demoacademico.service.EstudianteService;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class EstudianteController {
     }
 
     @GetMapping("/buscar")
-    public Optional<Estudiante> buscarPorEmail(@RequestParam String email){
+    public Optional<Estudiante> buscarPorEmail(@RequestParam String email) {
         return service.buscarPorEmail(email);
     }
 }
