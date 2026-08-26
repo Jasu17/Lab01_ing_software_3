@@ -10,6 +10,19 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * ============================================================================
+ * CAPA DE LÓGICA DE NEGOCIO (Service)
+ * ============================================================================
+ * 
+ * Responsabilidad de diseño:
+ * - Actúa como el núcleo o cerebro del sistema.
+ * - Coordina el flujo de datos entre la capa de presentación y la capa de acceso a datos.
+ * - Implementa y aplica todas las reglas de negocio, validaciones de dominio y políticas del sistema.
+ * - Mantiene el desacoplamiento entre las peticiones HTTP y el almacenamiento persistente.
+ * 
+ * Flujo de datos: HTTP Request -> Controller -> Service -> Repository -> BD
+ */
 @Service
 public class EstudianteService {
 
@@ -20,6 +33,10 @@ public class EstudianteService {
     }
 
     public Estudiante crear(Estudiante estudiante) {
+        // --------------------------------------------------------------------
+        // ZONA DE LÓGICA DE NEGOCIO:
+        // Validación de regla de negocio de dominio (email único en el sistema).
+        // --------------------------------------------------------------------
         repository.findByEmail(estudiante.getEmail())
                 .ifPresent(e -> {
                     throw new EmailDuplicadoException(
@@ -27,6 +44,11 @@ public class EstudianteService {
                                     "Por favor, use un correo electrónico diferente."
                     );
                 });
+
+        // --------------------------------------------------------------------
+        // ZONA DE DELEGACIÓN DE PERSISTENCIA:
+        // Delegación de la persistencia a la capa de acceso a datos (Repository).
+        // --------------------------------------------------------------------
         return repository.save(estudiante);
     }
 
