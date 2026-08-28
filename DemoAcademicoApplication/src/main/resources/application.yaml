@@ -34,8 +34,13 @@ spring:
 
 springdoc:
   api-docs:
-    path: '/v3/api-docs'
+    path: /v3/api-docs
     enabled: true
-    swagger-ui:
-      enabled: true
-      path: '/swagger-ui.html'
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+app:
+  seed:
+    enabled: true
+    cantidad: 500
