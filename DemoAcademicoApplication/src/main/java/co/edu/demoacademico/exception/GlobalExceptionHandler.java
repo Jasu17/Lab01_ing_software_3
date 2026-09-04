@@ -1,53 +1,42 @@
-package co.edu.demoacademico.exception;
+package co.edu.demoacademico.controller;
 
-import co.edu.demoacademico.model.ErrorResponse;
-import org.springframework.http.HttpStatus;
+import co.edu.demoacademico.api.ApiResponse;
+import co.edu.demoacademico.api.ResponseBuilder;
+import co.edu.demoacademico.exception.BusinessException;
+import co.edu.demoacademico.exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Maneja el error específico de email duplicado
-    @ExceptionHandler(EmailDuplicadoException.class)
-    public ResponseEntity<ErrorResponse> handleEmailDuplicado(EmailDuplicadoException ex) {
-        ErrorResponse error = new ErrorResponse(
-                "Error de registro",           // Mensaje general
-                HttpStatus.CONFLICT.value(),   // Código 409
-                ex.getMessage()                // Detalle específico
-        );
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(NotFoundException ex) {
+        return ResponseBuilder.notFound(ex.getMessage());
     }
 
-    // Maneja errores de validación
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBusiness(BusinessException ex) {
+        return ResponseBuilder.badRequest(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
-        String mensaje = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(fe -> errors.put(fe.getField(), fe.getDefaultMessage()));
 
-        ErrorResponse error = new ErrorResponse(
-                "Error de validación",
-                HttpStatus.BAD_REQUEST.value(),
-                mensaje
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, "Validación fallida", errors));
     }
 
-    // Maneja cualquier otra excepción no controlada
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        ErrorResponse error = new ErrorResponse(
-                "Error interno del servidor",
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponse<Object>> handleGeneric(Exception ex) {
+        return ResponseBuilder.internalError("Error inesperado");
     }
 }
