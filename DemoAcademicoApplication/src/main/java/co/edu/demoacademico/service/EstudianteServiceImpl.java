@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 public class EstudianteServiceImpl implements EstudianteService {
@@ -53,6 +55,10 @@ public class EstudianteServiceImpl implements EstudianteService {
         return repo.save(actual);
     }
 
+    @Override
+    public Optional<Estudiante> buscarPorEmail(String email){
+        return repo.findByEmail(email);
+    }
     @Override
     public void eliminar(Long id) {
         Estudiante actual = obtenerPorId(id);

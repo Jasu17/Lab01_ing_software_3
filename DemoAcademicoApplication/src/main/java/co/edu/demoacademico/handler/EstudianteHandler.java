@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class EstudianteHandler {
 
@@ -54,5 +56,9 @@ public class EstudianteHandler {
         dto.setNombre(e.getNombre());
         dto.setEmail(e.getEmail());
         return dto;
+    }
+
+    public Optional<Estudiante> buscarPorEmail(String email){
+        return service.buscarPorEmail(email);
     }
 }

@@ -6,12 +6,16 @@ import co.edu.demoacademico.dto.EstudianteCreateDTO;
 import co.edu.demoacademico.dto.EstudianteDTO;
 import co.edu.demoacademico.dto.EstudianteUpdateDTO;
 import co.edu.demoacademico.handler.EstudianteHandler;
+import co.edu.demoacademico.model.Estudiante;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/estudiantes")
@@ -51,5 +55,10 @@ public class EstudianteController {
     public ResponseEntity<ApiResponse<Object>> eliminar(@PathVariable Long id) {
         handler.eliminar(id);
         return ResponseBuilder.ok("Estudiante eliminado", null);
+    }
+
+    @GetMapping("/buscar")
+    public Optional<Estudiante> buscarPorEmail(@RequestParam String email){
+        return handler.buscarPorEmail(email);
     }
 }
