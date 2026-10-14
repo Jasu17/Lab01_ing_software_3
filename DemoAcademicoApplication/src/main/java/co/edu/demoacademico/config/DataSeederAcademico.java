@@ -1,11 +1,11 @@
 package co.edu.demoacademico.config;
 
-import co.edu.demoacademico.model.Asignatura;
-import co.edu.demoacademico.model.Grupo;
-import co.edu.demoacademico.model.Programa;
-import co.edu.demoacademico.repository.AsignaturaRepository;
-import co.edu.demoacademico.repository.GrupoRepository;
-import co.edu.demoacademico.repository.ProgramaRepository;
+import co.edu.demoacademico.asignaturas.model.Asignatura;
+import co.edu.demoacademico.grupos.model.Grupo;
+import co.edu.demoacademico.programas.model.Programa;
+import co.edu.demoacademico.asignaturas.repository.AsignaturaRepository;
+import co.edu.demoacademico.grupos.repository.GrupoRepository;
+import co.edu.demoacademico.programas.repository.ProgramaRepository;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
