@@ -16,7 +16,7 @@ public class DataSeeder {
     @Value("${app.seed.enabled:true}")
     private boolean enabled;
 
-    @Value("${app.seed.cantidad:100}")
+    @Value("${app.seed.cantidad-estudiantes:${app.seed.cantidad:100}}")
     private int cantidad;
 
     @Bean
