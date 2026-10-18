@@ -1,0 +1,2 @@
+HTTP 404
+{"success":false,"message":"Grupo no encontrado: 999999","data":null,"timestamp":"2026-10-14T03:05:44.364928700Z"}

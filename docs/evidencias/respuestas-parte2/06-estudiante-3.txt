@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Estudiante creado","data":{"id":3,"nombre":"Mia Tres","email":"mia.tres.evidencia@test.edu"},"timestamp":"2026-10-18T00:02:07.053029900Z"}

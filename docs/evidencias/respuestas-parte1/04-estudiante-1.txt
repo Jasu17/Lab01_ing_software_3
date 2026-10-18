@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Estudiante creado","data":{"id":1,"nombre":"Ana Uno","email":"ana.uno.evidencia@test.edu"},"timestamp":"2026-10-14T03:05:44.271996700Z"}

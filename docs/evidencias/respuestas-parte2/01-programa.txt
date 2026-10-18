@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Programa creado","data":{"id":1,"codigo":"PROG-ING","nombre":"Ingenieria de Software"},"timestamp":"2026-10-18T00:02:06.976570200Z"}

@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+Copyright 2004-2023 H2 Group. Multiple-Licensed under the MPL 2.0,
+and the EPL 1.0 (https://h2database.com/html/license.html).
+Initial Developer: H2 Group
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>H2 Console</title>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+    <script type="text/javascript" src="table.js"></script>
+</head>
+<body class="result">
+
+<div id="output">
+SELECT &#39;programa&#39; AS tabla, COUNT(*) AS total FROM programa UNION ALL SELECT &#39;asignatura&#39;, COUNT(*) FROM asignatura UNION ALL SELECT &#39;grupo&#39;, COUNT(*) FROM grupo UNION ALL SELECT &#39;matricula&#39;, COUNT(*) FROM matricula UNION ALL SELECT &#39;estudiante&#39;, COUNT(*) FROM estudiante;<br /><table class="resultSet" cellspacing="0" cellpadding="0"><tr><th>TABLA</th><th>TOTAL</th></tr><tr><td>programa</td><td>1</td></tr><tr><td>asignatura</td><td>1</td></tr><tr><td>grupo</td><td>1</td></tr><tr><td>matricula</td><td>2</td></tr><tr><td>estudiante</td><td>3</td></tr></table>(5 rows, 1 ms)<br />
+</div>
+
+<table id="h2auto" class="autoComp"><tbody></tbody></table>
+
+</body></html>

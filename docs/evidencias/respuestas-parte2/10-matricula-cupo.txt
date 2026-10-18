@@ -1,0 +1,2 @@
+HTTP 400
+{"success":false,"message":"El grupo no tiene cupo disponible","data":null,"timestamp":"2026-10-18T00:02:07.100084600Z"}

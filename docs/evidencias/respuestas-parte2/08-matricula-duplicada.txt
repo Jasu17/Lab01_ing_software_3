@@ -1,0 +1,2 @@
+HTTP 400
+{"success":false,"message":"El estudiante ya está matriculado en ese grupo","data":null,"timestamp":"2026-10-18T00:02:07.089978400Z"}

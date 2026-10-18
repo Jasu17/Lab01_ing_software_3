@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Grupo creado","data":{"id":1,"codigoGrupo":"G-IS3-01","cupoMax":2,"asignaturaId":1,"asignaturaNombre":"Ingenieria de Software III"},"timestamp":"2026-10-14T03:05:44.260832800Z"}

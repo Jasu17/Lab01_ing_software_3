@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Matrícula registrada","data":{"id":2,"estudianteId":2,"estudianteNombre":"Luis Dos","grupoId":1,"codigoGrupo":"G-IS3-01","fechaRegistro":"2026-10-14T03:05:44.344930500Z"},"timestamp":"2026-10-14T03:05:44.345929200Z"}

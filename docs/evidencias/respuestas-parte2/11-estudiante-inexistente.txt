@@ -1,0 +1,2 @@
+HTTP 404
+{"success":false,"message":"Estudiante no encontrado: 999999","data":null,"timestamp":"2026-10-18T00:02:07.100084600Z"}

@@ -1,0 +1,2 @@
+HTTP 201
+{"success":true,"message":"Asignatura creada","data":{"id":1,"codigo":"ASIG-IS3","nombre":"Ingenieria de Software III","creditos":3,"programaId":1,"programaNombre":"Ingenieria de Software"},"timestamp":"2026-10-14T03:05:44.246712300Z"}
