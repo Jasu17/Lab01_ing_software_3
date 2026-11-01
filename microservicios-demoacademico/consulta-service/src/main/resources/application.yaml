@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   datasource:
@@ -30,6 +30,10 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
+services:
+  auth:
+    url: http://localhost:8081
 
 app:
   seed:
