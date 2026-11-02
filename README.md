@@ -1,85 +1,125 @@
-# Laboratorio 03 — Sistema académico y arquitectura por módulos
+# Lab 04 — Microservicios con Spring Boot, JWT y Docker
 
-Proyecto `demo-academico` de Ingeniería de Software III. Continúa el Laboratorio 02 (CRUD de estudiantes, Opción A) y agrega el flujo Programa, Asignatura, Grupo y Matrícula. Después reorganiza el código por módulos y comunica matrículas con los demás módulos solo mediante ports.
+## Descripción
+
+Solución académica compuesta por dos microservicios desarrollados con Spring Boot 3.2.5 y Java 21:
+
+- **consulta-service:** gestión y consulta de estudiantes mediante una API REST protegida.
+- **auth-service:** autenticación de usuarios mediante BCrypt y generación/validación de tokens JWT.
+
+La comunicación entre servicios se realiza mediante OpenFeign. Ambos utilizan bases de datos H2 independientes.
 
 ## Requisitos
 
-- JDK 21 o superior. El `pom.xml` compila con release 21 (Spring Boot 3.2.5). En esta máquina `JAVA_HOME` apunta a JDK 11, que no puede compilar el proyecto; hay que apuntarlo a un JDK 21 o superior antes de Maven. Aquí se usó `C:\Program Files\Java\jdk-25.0.2`.
-- Maven Wrapper incluido en `DemoAcademicoApplication` (`mvnw.cmd`). No hace falta instalar Maven.
+- Java 21
+- Maven
+- Docker y Docker Compose (para ejecución contenerizada)
 
-## Cómo iniciar la aplicación
+## Ejecución local
 
-Desde `DemoAcademicoApplication`:
+Abrir dos terminales desde la raíz del repositorio.
 
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-25.0.2"
-.\mvnw.cmd spring-boot:run
+**1. Iniciar auth-service:**
+
+```bash
+cd microservicios-demoacademico/auth-service
+mvn clean package -DskipTests
+mvn spring-boot:run
 ```
 
-La aplicación escucha en el puerto 8080. H2 queda en memoria.
+**2. Iniciar consulta-service:**
 
-## Pruebas automatizadas
-
-Desde `DemoAcademicoApplication`:
-
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-25.0.2"
-.\mvnw.cmd test
+```bash
+cd microservicios-demoacademico/consulta-service
+mvn clean package -DskipTests
+mvn spring-boot:run
 ```
 
-`MatriculaRulesTest` cubre matrícula exitosa, duplicado con cupo todavía disponible, rechazo por cupo, estudiante inexistente y grupo inexistente. `MatriculaArchitectureTest` comprueba que el módulo de matrículas no importa repositorios de estudiantes ni de grupos.
+Los servicios deben ejecutarse en el siguiente orden: primero `auth-service` (8081) y después `consulta-service` (8082).
 
-## Swagger y H2
+## Ejecución con Docker Compose
 
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- Consola H2: http://localhost:8080/h2-console
-- JDBC: `jdbc:h2:mem:demoacademico`
-- Usuario: `sa`
-- Contraseña: vacía
+Desde la carpeta `microservicios-demoacademico`, compilar ambos proyectos:
 
-## Estructura modular
+```bash
+cd microservicios-demoacademico/auth-service
+mvn clean package -DskipTests
 
-```
-co.edu.demoacademico
-├── common          respuestas, excepciones y manejador global
-├── estudiantes
-├── programas
-├── asignaturas
-├── grupos
-└── matriculas
+cd ../consulta-service
+mvn clean package -DskipTests
 ```
 
-Cada módulo de negocio agrupa modelo, repositorio, servicio, handler, controller y DTOs.
+Levantar los contenedores desde la carpeta `microservicios-demoacademico`:
 
-## Ports
+```bash
+docker compose up --build -d
+```
 
-- `EstudianteQueryPort.obtenerPorId(Long id)` es el contrato público del módulo de estudiantes. Lo implementa `EstudianteServiceImpl`. Si el estudiante no existe, lanza `NotFoundException`.
-- `GrupoQueryPort.obtenerPorId(Long id)` es el contrato público del módulo de grupos. Lo implementa `GrupoServiceImpl`. Si el grupo no existe, lanza `NotFoundException`.
+Verificar el estado:
 
-`MatriculaServiceImpl` usa esos dos ports y su propio `MatriculaRepository`. No inyecta `EstudianteRepository` ni `GrupoRepository`.
+```bash
+docker compose ps
+```
 
-## Reglas de matrícula
+Detener los servicios:
 
-1. El estudiante debe existir.
-2. El grupo debe existir.
-3. La pareja estudiante-grupo no puede repetirse.
-4. El número de matrículas del grupo no puede alcanzar `cupoMax`.
-5. Si las cuatro condiciones se cumplen, se guarda la matrícula.
+```bash
+docker compose down
+```
 
-Los errores de negocio responden 400 con `ApiResponse`. Los recursos ausentes responden 404. La validación de DTOs responde 400 con el mensaje "Validación fallida".
+## URLs de acceso
 
-## Semilla
+| Servicio | Swagger UI | H2 Console |
+|---|---|---|
+| auth-service | http://localhost:8081/swagger-ui.html | http://localhost:8081/h2-console |
+| consulta-service | http://localhost:8082/swagger-ui.html | http://localhost:8082/h2-console |
 
-`application.yaml` controla la carga inicial:
+**Configuración de conexión H2:**
 
-- `app.seed.enabled`
-- `app.seed.cantidad-estudiantes` (si no está, se usa `app.seed.cantidad`)
-- `app.seed.cantidad-programas`
-- `app.seed.cantidad-asignaturas`
-- `app.seed.cantidad-grupos`
+| Campo | auth-service | consulta-service |
+|---|---|---|
+| JDBC URL | `jdbc:h2:mem:authdb` | `jdbc:h2:mem:demoacademico` |
+| Driver | `org.h2.Driver` | `org.h2.Driver` |
+| Usuario | `sa` | `sa` |
+| Contraseña | Vacía | Vacía |
 
-Si ya hay datos de ese tipo, el seeder correspondiente no vuelve a insertar. No se generan matrículas.
+Nota: H2 Console tiene restricciones para conexiones remotas. En Docker, el acceso desde el navegador puede requerir habilitar explícitamente `web-allow-others`.
+
+## Usuarios de prueba
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| admin | `Admin2026*` | ADMIN |
+| docente | `Docente2026*` | DOCENTE |
+| estudiante1 | `Estu2026*` | ESTUDIANTE |
+
+Los usuarios se crean automáticamente mediante `AuthDataSeeder` cuando la base de datos está vacía.
+
+## Flujo de autenticación en Swagger
+
+1. Abrir Swagger de `auth-service`:
+   http://localhost:8081/swagger-ui.html
+2. Ejecutar `POST /auth/login` con un usuario y contraseña válidos.
+3. Copiar únicamente el valor del campo `token` de la respuesta.
+4. Ejecutar `GET /auth/validate` y enviar el token como parámetro para verificar su validez.
+5. Abrir Swagger de `consulta-service`:
+   http://localhost:8082/swagger-ui.html
+6. Pulsar **Authorize**.
+7. Pegar únicamente el token copiado, sin escribir el prefijo `Bearer`.
+8. Pulsar **Authorize** y cerrar la ventana emergente.
+9. Ejecutar `GET /api/estudiantes`.
+
+Swagger agregará automáticamente el encabezado:
+
+```http
+Authorization: Bearer <token>
+```
+
+Si no se autoriza la petición o se utiliza un token inválido, el servicio debe rechazar el acceso.
 
 ## Evidencias
-
 El PDF está en `docs/evidencias/Laboratorio_03_Evidencias.pdf`. Las capturas usadas están en `docs/evidencias/capturas/`.
+
+---
+
+**Tecnologías:** Java 21 · Spring Boot · Spring Security · Spring Data JPA · H2 · BCrypt · JWT · OpenFeign · Swagger/OpenAPI · Docker Compose.
