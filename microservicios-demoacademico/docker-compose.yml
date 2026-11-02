@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    networks:
+      - micro-net
+
+  consulta-service:
+    build: ./consulta-service
+    container_name: consulta-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - auth-service
+    environment:
+      SERVICES_AUTH_URL: http://auth-service:8081
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    driver: bridge
