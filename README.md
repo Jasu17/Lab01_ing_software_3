@@ -1,125 +1,48 @@
-# Lab 04 — Microservicios con Spring Boot, JWT y Docker
+# Laboratorio: Contenerización de Microservicios con Spring Boot y Docker
 
-## Descripción
+Este repositorio documenta el desarrollo y la implementación práctica del laboratorio enfocado en la contenerización de aplicaciones desarrolladas con **Spring Boot**, abriendo desde enfoques ineficientes hasta el estándar de la industria (*Multi-stage builds*), gestión de volúmenes para persistencia y aislamiento de redes en arquitecturas de microservicios.
 
-Solución académica compuesta por dos microservicios desarrollados con Spring Boot 3.2.5 y Java 21:
+## Estructura y Fases del Laboratorio
 
-- **consulta-service:** gestión y consulta de estudiantes mediante una API REST protegida.
-- **auth-service:** autenticación de usuarios mediante BCrypt y generación/validación de tokens JWT.
+El laboratorio se estructuró de manera progresiva para analizar el impacto del diseño de contenedores en términos de tamaño, seguridad, rendimiento y despliegue:
 
-La comunicación entre servicios se realiza mediante OpenFeign. Ambos utilizan bases de datos H2 independientes.
+### 1. Análisis de Enfoques de Contenerización
+* **Enfoque Ineficiente (`Dockerfile.bad`):** 
+  * Se realizó la compilación de la aplicación directamente dentro de la imagen de Docker.
+  * *Resultado:* Imágenes sobredimensionadas (superiores a `1.19 GB`), alta superficie de ataque debido a la inclusión del SDK completo, Maven, código fuente y dependencias intermedias.
+* **Compilación Separada (`Dockerfile.good`):**
+  * Se separó el proceso compilando localmente el archivo ejecutable (`.jar`) y utilizando Docker exclusivamente para ejecutar el artefacto sobre una imagen base ligera (`Alpine`).
+  * *Resultado:* Reducción drástica del tamaño de la imagen (~660 MB sin comprimir / ~235 MB comprimidos) y mayor seguridad en el entorno de ejecución.
+* **Enfoque Óptimo Multi-stage (`Dockerfile.multi`):**
+  * Se implementó un único `Dockerfile` dividido en dos etapas: una primera etapa (`build`) encargada de compilar con Maven y una segunda etapa de producción (`runtime`) basada en Alpine que hereda únicamente el artefacto ejecutable (`app.jar`).
+  * *Resultado:* Automatización completa del proceso de construcción de manera reproducible y limpia, sin contaminar el entorno host del desarrollador.
 
-## Requisitos
+### 2. Persistencia de Datos con Volúmenes
+* Se implementaron volúmenes de Docker (`datos-spring-lab`) para evitar la pérdida de información inherente a la naturaleza efímera de los contenedores.
+* Se validó la durabilidad de los datos al escribir y leer archivos de prueba a través de contenedores independientes que comparten el mismo volumen de almacenamiento persistente.
 
-- Java 21
-- Maven
-- Docker y Docker Compose (para ejecución contenerizada)
+### 3. Redes y Comunicación entre Conteneres
+* Se creó una red virtual privada en Docker (`red-spring-lab`) para aislar y conectar los servicios de forma segura.
+* Se probó la comunicación interna entre contenedores (como microservicios y bases de datos MySQL) mediante resolución de nombres utilizando el DNS interno de Docker (por ejemplo, conectando al host `db-lab`), evitando la dependencia de direcciones IP estáticas.
 
-## Ejecución local
-
-Abrir dos terminales desde la raíz del repositorio.
-
-**1. Iniciar auth-service:**
-
-```bash
-cd microservicios-demoacademico/auth-service
-mvn clean package -DskipTests
-mvn spring-boot:run
-```
-
-**2. Iniciar consulta-service:**
-
-```bash
-cd microservicios-demoacademico/consulta-service
-mvn clean package -DskipTests
-mvn spring-boot:run
-```
-
-Los servicios deben ejecutarse en el siguiente orden: primero `auth-service` (8081) y después `consulta-service` (8082).
-
-## Ejecución con Docker Compose
-
-Desde la carpeta `microservicios-demoacademico`, compilar ambos proyectos:
-
-```bash
-cd microservicios-demoacademico/auth-service
-mvn clean package -DskipTests
-
-cd ../consulta-service
-mvn clean package -DskipTests
-```
-
-Levantar los contenedores desde la carpeta `microservicios-demoacademico`:
-
-```bash
-docker compose up --build -d
-```
-
-Verificar el estado:
-
-```bash
-docker compose ps
-```
-
-Detener los servicios:
-
-```bash
-docker compose down
-```
-
-## URLs de acceso
-
-| Servicio | Swagger UI | H2 Console |
-|---|---|---|
-| auth-service | http://localhost:8081/swagger-ui.html | http://localhost:8081/h2-console |
-| consulta-service | http://localhost:8082/swagger-ui.html | http://localhost:8082/h2-console |
-
-**Configuración de conexión H2:**
-
-| Campo | auth-service | consulta-service |
-|---|---|---|
-| JDBC URL | `jdbc:h2:mem:authdb` | `jdbc:h2:mem:demoacademico` |
-| Driver | `org.h2.Driver` | `org.h2.Driver` |
-| Usuario | `sa` | `sa` |
-| Contraseña | Vacía | Vacía |
-
-Nota: H2 Console tiene restricciones para conexiones remotas. En Docker, el acceso desde el navegador puede requerir habilitar explícitamente `web-allow-others`.
-
-## Usuarios de prueba
-
-| Usuario | Contraseña | Rol |
-|---|---|---|
-| admin | `Admin2026*` | ADMIN |
-| docente | `Docente2026*` | DOCENTE |
-| estudiante1 | `Estu2026*` | ESTUDIANTE |
-
-Los usuarios se crean automáticamente mediante `AuthDataSeeder` cuando la base de datos está vacía.
-
-## Flujo de autenticación en Swagger
-
-1. Abrir Swagger de `auth-service`:
-   http://localhost:8081/swagger-ui.html
-2. Ejecutar `POST /auth/login` con un usuario y contraseña válidos.
-3. Copiar únicamente el valor del campo `token` de la respuesta.
-4. Ejecutar `GET /auth/validate` y enviar el token como parámetro para verificar su validez.
-5. Abrir Swagger de `consulta-service`:
-   http://localhost:8082/swagger-ui.html
-6. Pulsar **Authorize**.
-7. Pegar únicamente el token copiado, sin escribir el prefijo `Bearer`.
-8. Pulsar **Authorize** y cerrar la ventana emergente.
-9. Ejecutar `GET /api/estudiantes`.
-
-Swagger agregará automáticamente el encabezado:
-
-```http
-Authorization: Bearer <token>
-```
-
-Si no se autoriza la petición o se utiliza un token inválido, el servicio debe rechazar el acceso.
-
-## Evidencias
-El PDF está en `docs/evidencias/Laboratorio_03_Evidencias.pdf`. Las capturas usadas están en `docs/evidencias/capturas/`.
+### 4. Caso Integrador y Orquestación
+* Se analizaron escenarios empresariales donde la optimización de tamaño, la seguridad de las imágenes, la persistencia de bases de datos y la correcta comunicación de red son críticas para entornos de producción.
+* Se consolidó la estructura mediante prácticas estandarizadas para el despliegue concurrente utilizando orquestación de contenedores.
 
 ---
 
-**Tecnologías:** Java 21 · Spring Boot · Spring Security · Spring Data JPA · H2 · BCrypt · JWT · OpenFeign · Swagger/OpenAPI · Docker Compose.
+## Tabla Comparativa de Enfoques
+
+| Criterio | Compilación en Docker (`bad`) | Compilación Separada (`good`) | Enfoque Multi-stage (`multi`) |
+| :--- | :--- | :--- | :--- |
+| **Tamaño de Imagen** | Muy alto (> 1 GB) | Optimizado (~660 MB / 235 MB) | Optimizado (~660 MB / 235 MB) |
+| **Seguridad** | Baja (expone herramientas y código) | Alta (solo binario de ejecución) | Alta (entorno limpio y aislado) |
+| **Reproducibilidad** | Depende del entorno local | Baja (requiere build previo manual) | Alta (automatizada por Docker) |
+| **Adecuación Producción**| No recomendada | Aceptable | Estándar ideal de la industria |
+
+---
+
+## Conclusiones Clave
+1. **Optimización de Imágenes:** El uso de compilaciones *multi-stage* y bases minimalistas como Alpine resulta indispensable para reducir costos de almacenamiento, acelerar descargas en registros y minimizar la superficie de ataque.
+2. **Persistencia y Estado:** Los contenedores deben mantenerse apátridas (*stateless*); toda información transaccional o de bases de datos debe recaer estrictamente sobre volúmenes externos gestionados.
+3. **Networking Seguro:** El aislamiento por redes virtuales y la comunicación por nombres de host garantizan arquitecturas limpias, escalables y protegidas contra exposiciones innecesarias al exterior.
