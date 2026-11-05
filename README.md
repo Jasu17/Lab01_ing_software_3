@@ -118,7 +118,7 @@ Authorization: Bearer <token>
 Si no se autoriza la petición o se utiliza un token inválido, el servicio debe rechazar el acceso.
 
 ## Evidencias
-El PDF está en `docs/evidencias/Laboratorio_03_Evidencias.pdf`. Las capturas usadas están en `docs/evidencias/capturas/`.
+El PDF está en `docs/evidencias/Laboratorio_04_Evidencias.pdf`. Las capturas usadas están en `docs/evidencias/capturas/`.
 
 ---
 
