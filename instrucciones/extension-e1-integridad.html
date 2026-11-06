@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E1 · Integridad entre servicios</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="proyecto-final-guiado.html#extensiones">← Volver a la guía general</a>
+    <h1>E1 · Integridad entre servicios</h1>
+    <p>Guía de análisis: cómo proteger datos relacionados cuando están en bases de datos distintas</p>
+    <div class="nav"><a href="extension-e2-cupos.html">E2 Cupos</a><a href="extension-e1-integridad.html" class="actual">E1 Integridad</a><a href="extension-e4-mis-matriculas.html">E4 Mis matrículas</a><a href="extension-e3-calificaciones.html">E3 Calificaciones</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Qué resuelve esta extensión</h2>
+  <p>En un monolito, una llave foránea impide borrar un curso que tiene matrículas. En microservicios cada servicio tiene su propia base de datos y esa llave no existe: en la versión base se podía eliminar un estudiante o un curso con matrículas activas, y esas matrículas quedaban apuntando a un registro que ya no existía.</p>
+  <p>Con E1, antes de eliminar, <code>estudiantes-service</code> y <code>cursos-service</code> le preguntan a <code>matriculas-service</code> cuántas matrículas activas hay.</p>
+  <table><thead><tr><th>Situación</th><th>Antes</th><th>Con E1</th></tr></thead><tbody>
+    <tr><td>Eliminar un curso con matrículas activas</td><td><code>200</code>: matrículas huérfanas</td><td><code>409 Conflict</code> "No se puede eliminar: el curso tiene N matrícula(s) activa(s)"</td></tr>
+    <tr><td>Eliminar un estudiante sin matrículas activas</td><td><code>200</code></td><td><code>200</code></td></tr>
+    <tr><td>Eliminar con <code>matriculas-service</code> caído</td><td><code>200</code></td><td><code>502</code>: si no se puede verificar, no se elimina</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra los pasos con el proyecto abierto, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Flujo de una eliminación</h2>
+  <pre><code>DELETE /api/cursos/3 (token de ADMIN)
+   │
+   ▼
+cursos-service ── GET /api/matriculas/activas/conteo?cursoId=3 (mismo token) ──► matriculas-service
+   │                                                                              │
+   │◄──────────────────────────── {"success":true,"data":2} ──────────────────────┘
+   ▼
+¿data &gt; 0?  sí → 409 Conflict      no → se elimina (200)      error remoto → 502</code></pre>
+  <div class="warning"><strong>Dependencia circular:</strong> matrículas consulta a cursos (para verificar que existe) y ahora cursos consulta a matrículas (para verificar que no tiene matrículas). Funciona, pero acopla los dos servicios en ambas direcciones. Es la decisión de diseño más importante de esta extensión y se discute en las preguntas de análisis.</div>
+</section>
+
+<section class="card">
+  <h2>Mapa de cambios</h2>
+  <table><thead><tr><th>Servicio</th><th>Archivo</th><th>Cambio</th></tr></thead><tbody>
+    <tr><td>matriculas-service</td><td><code>controller/MatriculaController</code>, <code>service/MatriculaServiceImpl</code></td><td>Nuevo endpoint de conteo</td></tr>
+    <tr><td rowspan="6">estudiantes-service<br>y cursos-service</td><td><code>client/MatriculasClient</code></td><td>Cliente Feign hacia el conteo</td></tr>
+    <tr><td><code>dto/RemoteApiResponse</code></td><td>Contrato de respuesta remoto</td></tr>
+    <tr><td><code>config/FeignAuthPropagationConfig</code></td><td>Reenvía el token del usuario</td></tr>
+    <tr><td><code>exception/ConflictException</code>, <code>RemoteServiceException</code></td><td>Nuevos errores (409 y 502)</td></tr>
+    <tr><td><code>controller/GlobalExceptionHandler</code></td><td>Manejo de los nuevos errores</td></tr>
+    <tr><td><code>service/*ServiceImpl</code>, <code>application.yaml</code></td><td>La regla al eliminar y la URL de matrículas</td></tr>
+    <tr><td>raíz</td><td><code>docker-compose.yml</code></td><td>Variable <code>MATRICULAS_SERVICE_URL</code></td></tr>
+  </tbody></table>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — Matrículas publica un conteo</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/controller/MatriculaController.java</code></p>
+<pre><code>// E1: lo consultan estudiantes-service y cursos-service antes de eliminar
+@GetMapping("/activas/conteo")
+public ResponseEntity&lt;ApiResponse&lt;Long&gt;&gt; contarActivas(
+        @RequestParam(value = "estudianteId", required = false) Long estudianteId,
+        @RequestParam(value = "cursoId", required = false) Long cursoId) {
+    return ResponseBuilder.ok("OK", handler.contarActivas(estudianteId, cursoId));
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/service/MatriculaServiceImpl.java</code></p>
+<pre><code>public long contarActivas(Long estudianteId, Long cursoId) {
+    // E1: exactamente uno de los dos filtros
+    if ((estudianteId == null) == (cursoId == null)) {
+        throw new BusinessException("Envíe exactamente uno de los parámetros: estudianteId o cursoId");
+    }
+    return estudianteId != null
+            ? repository.countByEstudianteIdAndEstado(estudianteId, EstadoMatricula.ACTIVA)
+            : repository.countByCursoIdAndEstado(cursoId, EstadoMatricula.ACTIVA);
+}</code></pre>
+  <p>El endpoint exige <strong>exactamente un</strong> filtro: con ninguno o con los dos responde <code>400</code>. Devuelve un número, no la lista: quien pregunta solo necesita saber si hay matrículas y cuántas.</p>
+  <p>El endpoint queda bajo la regla <code>GET /api/matriculas/**</code> (ADMIN, DOCENTE). Como solo un ADMIN puede eliminar y su token se reenvía, la consulta siempre está autorizada.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — El cliente Feign en estudiantes-service</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/client/MatriculasClient.java</code></p>
+<pre><code>package co.edu.estudiantesservice.client;
+
+import co.edu.estudiantesservice.dto.RemoteApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@FeignClient(name = "matriculasClient", url = "${matriculas-service.url}")
+public interface MatriculasClient {
+
+    @GetMapping("/api/matriculas/activas/conteo")
+    RemoteApiResponse&lt;Long&gt; contarActivasPorEstudiante(@RequestParam("estudianteId") Long estudianteId);
+}</code></pre>
+  <p>A diferencia de los clientes del Lab 06 (<code>@PathVariable</code>), este envía un parámetro de consulta con <code>@RequestParam</code>: la URL resultante es <code>/api/matriculas/activas/conteo?estudianteId=1</code>.</p>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/dto/RemoteApiResponse.java</code></p>
+<pre><code>package co.edu.estudiantesservice.dto;
+
+/**
+ * Copia local del contrato de respuesta de los otros servicios: {success, message, data}.
+ */
+public class RemoteApiResponse&lt;T&gt; {
+    private boolean success;
+    private String message;
+    private T data;
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public T getData() { return data; }
+    public void setData(T data) { this.data = data; }
+}</code></pre>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/config/FeignAuthPropagationConfig.java</code></p>
+<pre><code>package co.edu.estudiantesservice.config;
+
+import feign.RequestInterceptor;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+/**
+ * Reenvía el token del usuario en cada llamada Feign saliente.
+ */
+@Configuration
+public class FeignAuthPropagationConfig {
+
+    @Bean
+    public RequestInterceptor authTokenPropagationInterceptor() {
+        return requestTemplate -&gt; {
+            if (requestTemplate.headers().containsKey(HttpHeaders.AUTHORIZATION)) {
+                return;
+            }
+            RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+            if (attributes instanceof ServletRequestAttributes servletAttributes) {
+                HttpServletRequest request = servletAttributes.getRequest();
+                String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+                if (authorization != null &amp;&amp; !authorization.isBlank()) {
+                    requestTemplate.header(HttpHeaders.AUTHORIZATION, authorization);
+                }
+            }
+        };
+    }
+}</code></pre>
+  <p>Es la misma configuración de <code>matriculas-service</code>: sin ella, la llamada llegaría sin token y matrículas respondería <code>401</code>.</p>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/resources/application.yaml</code></p>
+<pre><code>matriculas-service:
+  url: ${MATRICULAS_SERVICE_URL:http://localhost:8084}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — La regla al eliminar</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/service/EstudianteServiceImpl.java</code></p>
+<pre><code>public void eliminar(Long id) {
+    Estudiante estudiante = obtenerPorId(id);
+    // E1: no se elimina un estudiante que todavía tiene matrículas activas
+    long activas = contarMatriculasActivas(id);
+    if (activas &gt; 0) {
+        throw new ConflictException("No se puede eliminar: el estudiante tiene " + activas + " matrícula(s) activa(s)");
+    }
+    repository.delete(estudiante);
+}</code></pre>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/service/EstudianteServiceImpl.java</code></p>
+<pre><code>private long contarMatriculasActivas(Long estudianteId) {
+    try {
+        RemoteApiResponse&lt;Long&gt; response = matriculasClient.contarActivasPorEstudiante(estudianteId);
+        if (response == null || !response.isSuccess() || response.getData() == null) {
+            throw new RemoteServiceException("matriculas-service no devolvió el conteo de matrículas");
+        }
+        return response.getData();
+    } catch (FeignException ex) {
+        throw new RemoteServiceException("No fue posible verificar las matrículas del estudiante (código remoto " + ex.status() + ")");
+    }
+}</code></pre>
+  <p>La regla está en el <strong>servicio</strong>, no en el controlador, porque es una regla de negocio. Si matrículas no responde, se lanza <code>RemoteServiceException</code> y el estudiante <strong>no</strong> se elimina: ante la duda, el sistema prefiere no perder integridad.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — Nuevos códigos de respuesta</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/exception/ConflictException.java</code></p>
+<pre><code>package co.edu.estudiantesservice.exception;
+
+public class ConflictException extends RuntimeException {
+    public ConflictException(String message) {
+        super(message);
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/controller/GlobalExceptionHandler.java</code></p>
+<pre><code>@ExceptionHandler(ConflictException.class)
+public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleConflict(ConflictException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+}
+
+@ExceptionHandler(RemoteServiceException.class)
+public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleRemote(RemoteServiceException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+            .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+}</code></pre>
+  <p><code>409 Conflict</code> indica que la petición es correcta pero choca con el estado actual de los datos: si primero se anulan las matrículas, la misma petición sí funciona.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — Lo mismo en cursos-service</h2>
+  <p><code>cursos-service</code> tiene las mismas piezas (cliente, propagación del token, excepciones y manejadores). Su cliente consulta por <code>cursoId</code>:</p>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/client/MatriculasClient.java</code></p>
+<pre><code>package co.edu.cursosservice.client;
+
+import co.edu.cursosservice.dto.RemoteApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@FeignClient(name = "matriculasClient", url = "${matriculas-service.url}")
+public interface MatriculasClient {
+
+    @GetMapping("/api/matriculas/activas/conteo")
+    RemoteApiResponse&lt;Long&gt; contarActivasPorCurso(@RequestParam("cursoId") Long cursoId);
+}</code></pre>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/service/CursoServiceImpl.java</code></p>
+<pre><code>public void eliminar(Long id) {
+    Curso curso = obtenerPorId(id);
+    // E1: no se elimina un curso que todavía tiene matrículas activas
+    long activas = contarMatriculasActivas(id);
+    if (activas &gt; 0) {
+        throw new ConflictException("No se puede eliminar: el curso tiene " + activas + " matrícula(s) activa(s)");
+    }
+    repository.delete(curso);
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 6 — Docker Compose y la dependencia circular</h2>
+  <p class="file">Archivo: <code>docker-compose.yml</code></p>
+<pre><code>estudiantes-service:
+  build: ./estudiantes-service
+  container_name: estudiantes-service
+  environment:
+    AUTH_SERVICE_URL: http://auth-service:8081
+    MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+  depends_on:
+    - auth-service
+  ports:
+    - "8082:8082"</code></pre>
+  <p>Se agregó la variable <code>MATRICULAS_SERVICE_URL</code>, pero <strong>no</strong> un <code>depends_on</code> hacia <code>matriculas-service</code>: matrículas ya depende de estudiantes, y Compose rechaza los ciclos. Como el conteo solo se usa al eliminar, no hace falta que matrículas esté arriba cuando estudiantes arranca.</p>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Parta de la verificación de <a href="extension-e2-cupos.html">E2</a> (curso 3 con dos matrículas activas) o registre antes dos matrículas en el curso 3. Use un token de <code>admin</code>:</p>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>GET /api/matriculas/activas/conteo?cursoId=3</code></td><td><code>200</code> con <code>"data": 2</code></td></tr>
+    <tr><td>2</td><td><code>GET /api/matriculas/activas/conteo</code> (sin filtro)</td><td><code>400</code> "Envíe exactamente uno de los parámetros…"</td></tr>
+    <tr><td>3</td><td><code>DELETE /api/cursos/3</code></td><td><code>409</code> "No se puede eliminar: el curso tiene 2 matrícula(s) activa(s)"</td></tr>
+    <tr><td>4</td><td><code>DELETE /api/estudiantes/1</code> (tiene una matrícula activa)</td><td><code>409</code></td></tr>
+    <tr><td>5</td><td><code>DELETE /api/estudiantes/50</code> (sin matrículas)</td><td><code>200</code></td></tr>
+    <tr><td>6</td><td>Matricular al estudiante 5 en el curso 2 y ejecutar <code>DELETE /api/cursos/2</code></td><td><code>409</code> "…tiene 1 matrícula(s) activa(s)"</td></tr>
+    <tr><td>7</td><td>Anular esa matrícula y repetir <code>DELETE /api/cursos/2</code></td><td><code>200</code>: sin matrículas activas, el curso se elimina</td></tr>
+    <tr><td>8</td><td>Detener <code>matriculas-service</code> y ejecutar <code>DELETE /api/cursos/1</code></td><td><code>502</code> "No fue posible verificar las matrículas del curso…"; el curso sigue existiendo</td></tr>
+  </tbody></table>
+  <div class="warning"><strong>Haga el paso 8 al final de todas las verificaciones.</strong> Con H2 en memoria, al detener <code>matriculas-service</code> se pierden sus matrículas, y las guías de E4 y E3 las necesitan.</div>
+  <p>Pruebas automatizadas relacionadas: <code>EstudianteServiceImplTest</code> (3 casos: activas, sin activas y matrículas caído) y <code>CursoServiceImplTest</code> (<code>noEliminaUnCursoConMatriculasActivas</code>).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>Dibuje las dependencias entre los cinco servicios del proyecto. ¿Qué ciclos aparecen? ¿Qué riesgos tiene un ciclo al desplegar o al cambiar un contrato?</li>
+    <li>Una alternativa es la <strong>eliminación lógica</strong>: marcar el curso como inactivo en lugar de borrarlo, y que matrículas rechace cursos inactivos. Compare las dos opciones (acoplamiento, historial de datos, complejidad).</li>
+    <li>Si matrículas no responde, la eliminación se rechaza (<em>fail-closed</em>). ¿Qué pasaría con la opción contraria (<em>fail-open</em>)? ¿Cuándo sería aceptable?</li>
+    <li>Entre la consulta del conteo y el <code>delete</code> pasa un instante. ¿Podría registrarse una matrícula justo en ese momento? ¿Qué consecuencia tendría?</li>
+    <li>¿Por qué <code>409</code> y no <code>400</code>? ¿Qué le dice cada código al cliente sobre lo que debe hacer?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

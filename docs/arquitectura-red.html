@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Proyecto S3. Red Compose</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f5f7;
+      --ink: #1c1f24;
+      --muted: #5c6570;
+      --line: #c5cad3;
+      --card: #ffffff;
+      --accent: #1f4b99;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14171c;
+        --ink: #e7e9ee;
+        --muted: #a7b0bc;
+        --line: #3a4250;
+        --card: #1c2129;
+        --accent: #8eb0ef;
+      }
+    }
+    body {
+      margin: 0;
+      font: 400 15px/1.45 "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 22px; font-weight: 500; margin: 0 0 8px; }
+    h2 { font-size: 16px; font-weight: 500; margin: 28px 0 10px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); }
+    th, td { border: 1px solid var(--line); text-align: left; padding: 6px 8px; vertical-align: top; }
+    th { font-weight: 500; }
+    svg { width: 100%; height: auto; background: var(--card); border: 1px solid var(--line); }
+    .box { fill: var(--card); stroke: var(--accent); stroke-width: 1.5; }
+    .db { fill: none; stroke: var(--muted); stroke-width: 1.25; }
+    .label { fill: var(--ink); font-size: 13px; font-family: "Segoe UI", sans-serif; }
+    .small { fill: var(--muted); font-size: 11px; font-family: "Segoe UI", sans-serif; }
+    .edge { stroke: var(--muted); stroke-width: 1.25; fill: none; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Red Docker Compose. Proyecto S3</h1>
+  <p>Red <code>proyecto-s3_default</code>. Imagen <code>eclipse-temurin:21-jre</code>. Cada base H2 vive en el proceso del servicio.</p>
+
+  <svg viewBox="0 0 920 640" role="img" aria-label="Mapa de los cinco microservicios, sus bases H2 y las llamadas Feign">
+    <title>Mapa de red Proyecto S3</title>
+    <rect class="box" x="330" y="16" width="260" height="44" rx="4"/>
+    <text class="label" x="460" y="43" text-anchor="middle">Cliente REST / Swagger</text>
+
+    <rect class="box" x="24" y="120" width="168" height="72" rx="4"/>
+    <text class="label" x="108" y="148" text-anchor="middle">auth-service</text>
+    <text class="small" x="108" y="168" text-anchor="middle">:8081</text>
+    <text class="small" x="108" y="184" text-anchor="middle">sin variables</text>
+
+    <rect class="box" x="212" y="120" width="168" height="72" rx="4"/>
+    <text class="label" x="296" y="148" text-anchor="middle">estudiantes</text>
+    <text class="small" x="296" y="168" text-anchor="middle">:8082</text>
+    <text class="small" x="296" y="184" text-anchor="middle">AUTH, MATRICULAS</text>
+
+    <rect class="box" x="400" y="120" width="168" height="72" rx="4"/>
+    <text class="label" x="484" y="148" text-anchor="middle">cursos</text>
+    <text class="small" x="484" y="168" text-anchor="middle">:8083</text>
+    <text class="small" x="484" y="184" text-anchor="middle">AUTH, MATRICULAS</text>
+
+    <rect class="box" x="588" y="120" width="150" height="72" rx="4"/>
+    <text class="label" x="663" y="148" text-anchor="middle">matriculas</text>
+    <text class="small" x="663" y="168" text-anchor="middle">:8084</text>
+    <text class="small" x="663" y="184" text-anchor="middle">AUTH, EST, CUR</text>
+
+    <rect class="box" x="752" y="120" width="148" height="72" rx="4"/>
+    <text class="label" x="826" y="148" text-anchor="middle">calificaciones</text>
+    <text class="small" x="826" y="168" text-anchor="middle">:8085</text>
+    <text class="small" x="826" y="184" text-anchor="middle">AUTH, MATRICULAS</text>
+
+    <ellipse class="db" cx="108" cy="250" rx="62" ry="18"/>
+    <text class="small" x="108" y="254" text-anchor="middle">H2 authdb</text>
+    <ellipse class="db" cx="296" cy="250" rx="70" ry="18"/>
+    <text class="small" x="296" y="254" text-anchor="middle">estudiantesdb</text>
+    <ellipse class="db" cx="484" cy="250" rx="62" ry="18"/>
+    <text class="small" x="484" y="254" text-anchor="middle">cursosdb</text>
+    <ellipse class="db" cx="663" cy="250" rx="70" ry="18"/>
+    <text class="small" x="663" y="254" text-anchor="middle">matriculasdb</text>
+    <ellipse class="db" cx="826" cy="250" rx="70" ry="18"/>
+    <text class="small" x="826" y="254" text-anchor="middle">calificacionesdb</text>
+
+    <path class="edge" d="M460 60 V90 H108 V120"/>
+    <path class="edge" d="M460 90 H296 V120"/>
+    <path class="edge" d="M460 60 V120"/>
+    <path class="edge" d="M460 90 H663 V120"/>
+    <path class="edge" d="M460 90 H826 V120"/>
+
+    <path class="edge" d="M212 150 H192"/>
+    <path class="edge" d="M400 156 H192"/>
+    <path class="edge" d="M588 162 H192"/>
+    <path class="edge" d="M752 168 H192"/>
+    <text class="small" x="200" y="320">Validación: GET /auth/validate desde los cuatro servicios de dominio.</text>
+
+    <path class="edge" d="M663 192 H484"/>
+    <text class="small" x="500" y="360">Matrículas lee estudiante y curso con el Bearer original.</text>
+    <path class="edge" d="M296 192 H663"/>
+    <path class="edge" d="M484 198 H663"/>
+    <text class="small" x="300" y="390">Estudiantes y cursos consultan el conteo de matrículas activas.</text>
+    <path class="edge" d="M826 192 H738"/>
+    <text class="small" x="640" y="420">Calificaciones consulta la matrícula y /mias.</text>
+  </svg>
+
+  <h2>Puertos y variables</h2>
+  <table>
+    <thead>
+      <tr><th>Servicio</th><th>Puerto</th><th>Base H2</th><th>Variables</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>auth-service</td><td>8081</td><td>authdb</td><td>Ninguna</td></tr>
+      <tr><td>estudiantes-service</td><td>8082</td><td>estudiantesdb</td><td>AUTH_SERVICE_URL, MATRICULAS_SERVICE_URL</td></tr>
+      <tr><td>cursos-service</td><td>8083</td><td>cursosdb</td><td>AUTH_SERVICE_URL, MATRICULAS_SERVICE_URL</td></tr>
+      <tr><td>matriculas-service</td><td>8084</td><td>matriculasdb</td><td>AUTH_SERVICE_URL, ESTUDIANTES_SERVICE_URL, CURSOS_SERVICE_URL</td></tr>
+      <tr><td>calificaciones-service</td><td>8085</td><td>calificacionesdb</td><td>AUTH_SERVICE_URL, MATRICULAS_SERVICE_URL</td></tr>
+    </tbody>
+  </table>
+  <p>Dentro de Compose las URLs usan el nombre del servicio, por ejemplo <code>http://auth-service:8081</code>.</p>
+</main>
+</body>
+</html>

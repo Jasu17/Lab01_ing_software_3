@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de análisis · estudiantes-service</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="index.html">← Volver al portal</a>
+    <h1>Guía de análisis · estudiantes-service</h1>
+    <p>El CRUD de los laboratorios convertido en un microservicio protegido</p>
+    <div class="nav"><a href="seguridad.html">Seguridad</a><a href="auth-service.html">auth</a><a href="estudiantes-service.html" class="actual">estudiantes</a><a href="cursos-service.html">cursos</a><a href="matriculas-service.html">matrículas</a><a href="docker-pruebas.html">Docker y pruebas</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Propósito del módulo</h2>
+  <p>Este servicio es la evolución del CRUD trabajado desde el Lab 01: administra estudiantes dentro de un microservicio protegido con JWT, documentado con Swagger y organizado por capas. Es el mejor punto de partida para entender la arquitectura <strong>controller → handler → service → repository → model</strong>, porque los demás servicios la repiten.</p>
+  <table><thead><tr><th>Endpoint</th><th>Método</th><th>Rol</th><th>Respuesta</th></tr></thead><tbody>
+    <tr><td><code>/api/estudiantes?page=0&amp;size=10</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td><code>200</code>, listado paginado</td></tr>
+    <tr><td><code>/api/estudiantes/{id}</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td><code>200</code> o <code>404</code></td></tr>
+    <tr><td><code>/api/estudiantes</code></td><td>POST</td><td>ADMIN</td><td><code>201</code></td></tr>
+    <tr><td><code>/api/estudiantes/{id}</code></td><td>PUT</td><td>ADMIN</td><td><code>200</code></td></tr>
+    <tr><td><code>/api/estudiantes/{id}</code></td><td>DELETE</td><td>ADMIN</td><td><code>200</code>, o <code>409</code> si tiene matrículas activas (<a href="extension-e1-integridad.html">E1</a>)</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra las capas en el orden indicado, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Estructura del servicio</h2>
+  <pre><code>co.edu.estudiantesservice
+├── EstudiantesServiceApplication.java
+├── api          → ApiResponse, ApiErrorResponse, ResponseBuilder
+├── client       → AuthClient, MatriculasClient
+├── config       → SecurityConfig, OpenApiConfig, DataSeeder, FeignAuthPropagationConfig
+├── controller   → EstudianteController, GlobalExceptionHandler
+├── dto          → EstudianteCreateDTO, EstudianteUpdateDTO, EstudianteDTO, RemoteApiResponse, TokenValidationResponse
+├── exception    → BusinessException, NotFoundException, ConflictException, RemoteServiceException
+├── handler      → EstudianteHandler
+├── model        → Estudiante
+├── repository   → EstudianteRepository
+├── security     → AuthValidationFilter, CustomAuthenticationEntryPoint, CustomAccessDeniedHandler, …
+└── service      → EstudianteService, EstudianteServiceImpl</code></pre>
+  <p>Las piezas de <code>security</code> y <code>AuthClient</code> se analizan en la <a href="seguridad.html">guía de seguridad</a>; <code>MatriculasClient</code> y la propagación del token, en <a href="extension-e1-integridad.html">E1</a>.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — Model: la entidad</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/model/Estudiante.java</code></p>
+<pre><code>package co.edu.estudiantesservice.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "estudiante", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_estudiante_email", columnNames = {"email"})
+})
+public class Estudiante {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 120)
+    private String nombre;
+
+    @Column(nullable = false, length = 120)
+    private String apellido;
+
+    @Column(nullable = false, length = 160)
+    private String email;
+
+    @Column(nullable = false)
+    private Integer edad;
+
+    public Estudiante() {
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public Integer getEdad() { return edad; }
+    public void setEdad(Integer edad) { this.edad = edad; }
+}</code></pre>
+  <p>La restricción <code>uk_estudiante_email</code> hace que la base de datos rechace correos repetidos incluso si falla la validación del servicio.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — DTO: lo que entra y lo que sale</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/dto/EstudianteCreateDTO.java</code></p>
+<pre><code>package co.edu.estudiantesservice.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public class EstudianteCreateDTO {
+
+    @NotBlank(message = "El nombre es obligatorio")
+    private String nombre;
+
+    @NotBlank(message = "El apellido es obligatorio")
+    private String apellido;
+
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "El email no es válido")
+    private String email;
+
+    @NotNull(message = "La edad es obligatoria")
+    @Min(value = 1, message = "La edad mínima es 1")
+    private Integer edad;
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public Integer getEdad() { return edad; }
+    public void setEdad(Integer edad) { this.edad = edad; }
+}</code></pre>
+  <p><code>EstudianteUpdateDTO</code> tiene las mismas reglas; <code>EstudianteDTO</code> es la salida. El cliente nunca envía ni recibe la entidad directamente: así puede cambiar la tabla sin romper el contrato de la API.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Repository: consultas sin SQL</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/repository/EstudianteRepository.java</code></p>
+<pre><code>package co.edu.estudiantesservice.repository;
+
+import co.edu.estudiantesservice.model.Estudiante;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EstudianteRepository extends JpaRepository&lt;Estudiante, Long&gt; {
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, Long id);
+}</code></pre>
+  <p>Spring Data genera las consultas a partir del nombre: <code>existsByEmailAndIdNot</code> significa "¿existe otro estudiante con este correo que no sea el que estoy actualizando?".</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — Service: las reglas de negocio</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/service/EstudianteServiceImpl.java</code></p>
+<pre><code>package co.edu.estudiantesservice.service;
+
+import co.edu.estudiantesservice.client.MatriculasClient;
+import co.edu.estudiantesservice.dto.RemoteApiResponse;
+import co.edu.estudiantesservice.exception.BusinessException;
+import co.edu.estudiantesservice.exception.ConflictException;
+import co.edu.estudiantesservice.exception.NotFoundException;
+import co.edu.estudiantesservice.exception.RemoteServiceException;
+import co.edu.estudiantesservice.model.Estudiante;
+import co.edu.estudiantesservice.repository.EstudianteRepository;
+import feign.FeignException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class EstudianteServiceImpl implements EstudianteService {
+
+    private final EstudianteRepository repository;
+    private final MatriculasClient matriculasClient;
+
+    public EstudianteServiceImpl(EstudianteRepository repository, MatriculasClient matriculasClient) {
+        this.repository = repository;
+        this.matriculasClient = matriculasClient;
+    }
+
+    @Override
+    public Estudiante crear(Estudiante estudiante) {
+        if (repository.existsByEmail(estudiante.getEmail())) {
+            throw new BusinessException("Ya existe un estudiante con el email: " + estudiante.getEmail());
+        }
+        return repository.save(estudiante);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Estudiante obtenerPorId(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -&gt; new NotFoundException("Estudiante no encontrado: " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page&lt;Estudiante&gt; listar(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
+    @Override
+    public Estudiante actualizar(Long id, Estudiante estudiante) {
+        Estudiante actual = obtenerPorId(id);
+        if (repository.existsByEmailAndIdNot(estudiante.getEmail(), id)) {
+            throw new BusinessException("Ya existe otro estudiante con el email: " + estudiante.getEmail());
+        }
+        actual.setNombre(estudiante.getNombre());
+        actual.setApellido(estudiante.getApellido());
+        actual.setEmail(estudiante.getEmail());
+        actual.setEdad(estudiante.getEdad());
+        return repository.save(actual);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        Estudiante estudiante = obtenerPorId(id);
+        // E1: no se elimina un estudiante que todavía tiene matrículas activas
+        long activas = contarMatriculasActivas(id);
+        if (activas &gt; 0) {
+            throw new ConflictException("No se puede eliminar: el estudiante tiene " + activas + " matrícula(s) activa(s)");
+        }
+        repository.delete(estudiante);
+    }
+
+    private long contarMatriculasActivas(Long estudianteId) {
+        try {
+            RemoteApiResponse&lt;Long&gt; response = matriculasClient.contarActivasPorEstudiante(estudianteId);
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                throw new RemoteServiceException("matriculas-service no devolvió el conteo de matrículas");
+            }
+            return response.getData();
+        } catch (FeignException ex) {
+            throw new RemoteServiceException("No fue posible verificar las matrículas del estudiante (código remoto " + ex.status() + ")");
+        }
+    }
+}</code></pre>
+  <ul>
+    <li><strong>Correo único</strong> al crear y al actualizar (<code>BusinessException</code> → <code>400</code>).</li>
+    <li><strong>Estudiante inexistente</strong> → <code>NotFoundException</code> → <code>404</code>.</li>
+    <li><strong>Eliminar</strong> consulta a matrículas antes de borrar (<a href="extension-e1-integridad.html">E1</a>).</li>
+    <li><code>@Transactional(readOnly = true)</code> en las consultas: la base de datos puede optimizarlas porque no habrá cambios.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — Handler: conversión entre DTO y entidad</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/handler/EstudianteHandler.java</code></p>
+<pre><code>package co.edu.estudiantesservice.handler;
+
+import co.edu.estudiantesservice.dto.EstudianteCreateDTO;
+import co.edu.estudiantesservice.dto.EstudianteDTO;
+import co.edu.estudiantesservice.dto.EstudianteUpdateDTO;
+import co.edu.estudiantesservice.model.Estudiante;
+import co.edu.estudiantesservice.service.EstudianteService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+
+@Component
+public class EstudianteHandler {
+
+    private final EstudianteService service;
+
+    public EstudianteHandler(EstudianteService service) {
+        this.service = service;
+    }
+
+    public EstudianteDTO crear(EstudianteCreateDTO in) {
+        Estudiante estudiante = new Estudiante();
+        estudiante.setNombre(in.getNombre());
+        estudiante.setApellido(in.getApellido());
+        estudiante.setEmail(in.getEmail());
+        estudiante.setEdad(in.getEdad());
+        return toDto(service.crear(estudiante));
+    }
+
+    public EstudianteDTO obtener(Long id) {
+        return toDto(service.obtenerPorId(id));
+    }
+
+    public Page&lt;EstudianteDTO&gt; listar(Pageable pageable) {
+        return service.listar(pageable).map(this::toDto);
+    }
+
+    public EstudianteDTO actualizar(Long id, EstudianteUpdateDTO in) {
+        Estudiante estudiante = new Estudiante();
+        estudiante.setNombre(in.getNombre());
+        estudiante.setApellido(in.getApellido());
+        estudiante.setEmail(in.getEmail());
+        estudiante.setEdad(in.getEdad());
+        return toDto(service.actualizar(id, estudiante));
+    }
+
+    public void eliminar(Long id) {
+        service.eliminar(id);
+    }
+
+    private EstudianteDTO toDto(Estudiante estudiante) {
+        EstudianteDTO dto = new EstudianteDTO();
+        dto.setId(estudiante.getId());
+        dto.setNombre(estudiante.getNombre());
+        dto.setApellido(estudiante.getApellido());
+        dto.setEmail(estudiante.getEmail());
+        dto.setEdad(estudiante.getEdad());
+        return dto;
+    }
+}</code></pre>
+  <p>El handler mantiene el controlador liviano y el servicio libre de detalles de la API: el servicio trabaja con entidades, el controlador con DTO.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 6 — Controller y respuesta estándar</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/controller/EstudianteController.java</code></p>
+<pre><code>package co.edu.estudiantesservice.controller;
+
+import co.edu.estudiantesservice.api.ApiResponse;
+import co.edu.estudiantesservice.api.ResponseBuilder;
+import co.edu.estudiantesservice.dto.EstudianteCreateDTO;
+import co.edu.estudiantesservice.dto.EstudianteDTO;
+import co.edu.estudiantesservice.dto.EstudianteUpdateDTO;
+import co.edu.estudiantesservice.handler.EstudianteHandler;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/estudiantes")
+public class EstudianteController {
+
+    private final EstudianteHandler handler;
+
+    public EstudianteController(EstudianteHandler handler) {
+        this.handler = handler;
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;ApiResponse&lt;EstudianteDTO&gt;&gt; crear(@Valid @RequestBody EstudianteCreateDTO in) {
+        return ResponseBuilder.created("Estudiante creado", handler.crear(in));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;ApiResponse&lt;EstudianteDTO&gt;&gt; obtener(
+            @Parameter(description = "Id del estudiante", required = true)
+            @PathVariable("id") Long id) {
+        return ResponseBuilder.ok("OK", handler.obtener(id));
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;ApiResponse&lt;Page&lt;EstudianteDTO&gt;&gt;&gt; listar(@ParameterObject Pageable pageable) {
+        return ResponseBuilder.ok("OK", handler.listar(pageable));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;ApiResponse&lt;EstudianteDTO&gt;&gt; actualizar(
+            @Parameter(description = "Id del estudiante", required = true)
+            @PathVariable("id") Long id,
+            @Valid @RequestBody EstudianteUpdateDTO in) {
+        return ResponseBuilder.ok("Estudiante actualizado", handler.actualizar(id, in));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; eliminar(
+            @Parameter(description = "Id del estudiante", required = true)
+            @PathVariable("id") Long id) {
+        handler.eliminar(id);
+        return ResponseBuilder.ok("Estudiante eliminado", null);
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/api/ResponseBuilder.java</code></p>
+<pre><code>package co.edu.estudiantesservice.api;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+public class ResponseBuilder {
+
+    public static &lt;T&gt; ResponseEntity&lt;ApiResponse&lt;T&gt;&gt; ok(String message, T data) {
+        return ResponseEntity.ok(new ApiResponse&lt;&gt;(true, message, data));
+    }
+
+    public static &lt;T&gt; ResponseEntity&lt;ApiResponse&lt;T&gt;&gt; created(String message, T data) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse&lt;&gt;(true, message, data));
+    }
+
+    public static &lt;T&gt; ResponseEntity&lt;ApiResponse&lt;T&gt;&gt; error(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+                .body(new ApiResponse&lt;&gt;(false, message, null));
+    }
+}</code></pre>
+  <p>Todas las respuestas tienen la forma <code>{"success", "message", "data"}</code>. <code>@ParameterObject Pageable</code> hace que Swagger muestre <code>page</code>, <code>size</code> y <code>sort</code> como parámetros.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 7 — Manejo centralizado de errores</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/controller/GlobalExceptionHandler.java</code></p>
+<pre><code>package co.edu.estudiantesservice.controller;
+
+import co.edu.estudiantesservice.api.ApiResponse;
+import co.edu.estudiantesservice.exception.BusinessException;
+import co.edu.estudiantesservice.exception.ConflictException;
+import co.edu.estudiantesservice.exception.NotFoundException;
+import co.edu.estudiantesservice.exception.RemoteServiceException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleNotFound(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleBusiness(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleConflict(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(RemoteServiceException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleRemote(RemoteServiceException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleValidation(MethodArgumentNotValidException ex) {
+        Map&lt;String, String&gt; errors = new LinkedHashMap&lt;&gt;();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse&lt;&gt;(false, "Error de validación", errors));
+    }
+
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleMalformedRequest(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse&lt;&gt;(false, "Solicitud inválida: revise los parámetros de la URL y el formato del JSON", null));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse&lt;&gt;(false, "La operación viola una restricción de datos", null));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleNoResource(NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse&lt;&gt;(false, "La ruta solicitada no existe", null));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new ApiResponse&lt;&gt;(false, "Método HTTP no permitido para esta ruta", null));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleGeneric(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse&lt;&gt;(false, "Error interno del servidor", null));
+    }
+}</code></pre>
+  <p>Cada excepción se traduce a un código HTTP en un solo lugar. El manejador final de <code>Exception</code> evita que un error inesperado termine reenviado a <code>/error</code> y convertido en un <code>401</code> engañoso por la seguridad.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 8 — Autorización y datos iniciales</h2>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/config/SecurityConfig.java</code></p>
+<pre><code>.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**", "/error").permitAll()
+
+.requestMatchers(HttpMethod.GET, "/api/estudiantes/**").hasAnyAuthority("ADMIN", "DOCENTE")
+.requestMatchers(HttpMethod.POST, "/api/estudiantes/**").hasAuthority("ADMIN")
+.requestMatchers(HttpMethod.PUT, "/api/estudiantes/**").hasAuthority("ADMIN")
+.requestMatchers(HttpMethod.DELETE, "/api/estudiantes/**").hasAuthority("ADMIN")
+
+.anyRequest().authenticated()</code></pre>
+  <p class="file">Archivo: <code>estudiantes-service/src/main/java/co/edu/estudiantesservice/config/DataSeeder.java</code></p>
+<pre><code>package co.edu.estudiantesservice.config;
+
+import co.edu.estudiantesservice.model.Estudiante;
+import co.edu.estudiantesservice.repository.EstudianteRepository;
+import com.github.javafaker.Faker;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Locale;
+
+@Configuration
+public class DataSeeder {
+
+    @Value("${app.seed.enabled:true}")
+    private boolean enabled;
+
+    @Value("${app.seed.cantidad:50}")
+    private int cantidad;
+
+    @Bean
+    CommandLineRunner seedData(EstudianteRepository repository) {
+        return args -&gt; {
+            if (!enabled) return;
+            if (repository.count() &gt; 0) return;
+
+            Faker faker = new Faker(new Locale("es"));
+
+            for (int i = 0; i &lt; cantidad; i++) {
+                Estudiante estudiante = new Estudiante();
+                estudiante.setNombre(faker.name().firstName());
+                estudiante.setApellido(faker.name().lastName());
+                estudiante.setEmail("estudiante" + i + "@demoacademico.edu");
+                estudiante.setEdad(18 + (i % 20));
+                repository.save(estudiante);
+            }
+        };
+    }
+}</code></pre>
+  <p>El seeder crea 50 estudiantes con Faker (<code>app.seed.cantidad</code> en <code>application.yaml</code>). Los correos siguen el patrón <code>estudiante0@demoacademico.edu</code> para el id 1, <code>estudiante1@…</code> para el id 2, y así sucesivamente.</p>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Swagger: <code>http://localhost:8082/swagger-ui.html</code>. Use el token de <code>admin</code> salvo que se indique otro.</p>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>GET /api/estudiantes?page=0&amp;size=5</code></td><td><code>200</code>, 5 estudiantes y <code>"totalElements": 50</code></td></tr>
+    <tr><td>2</td><td><code>GET /api/estudiantes/999</code></td><td><code>404</code> "Estudiante no encontrado: 999"</td></tr>
+    <tr><td>3</td><td><code>POST</code> <code>{"nombre":"Ana","apellido":"Ruiz","email":"ana.ruiz@correo.edu","edad":20}</code></td><td><code>201</code></td></tr>
+    <tr><td>4</td><td>Repetir el paso 3</td><td><code>400</code> "Ya existe un estudiante con el email…"</td></tr>
+    <tr><td>5</td><td><code>POST</code> con <code>"email":"no-es-correo"</code> y <code>"edad":0</code></td><td><code>400</code> "Error de validación" con ambos campos</td></tr>
+    <tr><td>6</td><td><code>PUT /api/estudiantes/2</code> con el correo del estudiante 3 (<code>estudiante2@demoacademico.edu</code>) y el resto de campos</td><td><code>400</code> "Ya existe otro estudiante con el email…"</td></tr>
+    <tr><td>7</td><td>DOCENTE: <code>GET /api/estudiantes/1</code> y luego <code>POST</code></td><td><code>200</code> y <code>403</code></td></tr>
+    <tr><td>8</td><td>ESTUDIANTE: <code>GET /api/estudiantes/1</code></td><td><code>403</code></td></tr>
+    <tr><td>9</td><td><code>GET /api/estudiantes/abc</code></td><td><code>400</code> "Solicitud inválida…" (no <code>401</code>)</td></tr>
+  </tbody></table>
+  <p>Prueba automatizada: <code>EstudianteServiceImplTest</code> (<code>mvn test</code> en <code>estudiantes-service</code>).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>Siga una petición <code>POST /api/estudiantes</code> desde que entra hasta que se guarda: ¿qué clase interviene en cada paso y qué responsabilidad tiene?</li>
+    <li>El correo único se valida en el servicio <strong>y</strong> en la base de datos. ¿En qué situación la validación del servicio no sería suficiente?</li>
+    <li>¿Qué ganaría y qué perdería el proyecto si el controlador recibiera y devolviera directamente la entidad <code>Estudiante</code>?</li>
+    <li>¿Por qué existen dos DTO de entrada (creación y actualización) si hoy tienen los mismos campos?</li>
+    <li>¿Qué ventaja tiene paginar el listado? ¿Qué pasaría con 100.000 estudiantes sin paginación?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

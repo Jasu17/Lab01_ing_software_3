@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de análisis · auth-service</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="index.html">← Volver al portal</a>
+    <h1>Guía de análisis · auth-service</h1>
+    <p>El servicio que autentica usuarios y valida tokens para toda la plataforma</p>
+    <div class="nav"><a href="seguridad.html">Seguridad</a><a href="auth-service.html" class="actual">auth</a><a href="estudiantes-service.html">estudiantes</a><a href="cursos-service.html">cursos</a><a href="matriculas-service.html">matrículas</a><a href="docker-pruebas.html">Docker y pruebas</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Propósito del módulo</h2>
+  <p><code>auth-service</code> separa la autenticación del resto del sistema. En lugar de repetir la verificación de usuario y contraseña en cada microservicio, este servicio la centraliza y entrega un token que los demás módulos pueden verificar.</p>
+  <table><thead><tr><th>Endpoint</th><th>Método</th><th>Acceso</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>/auth/login</code></td><td>POST</td><td>Público</td><td>Recibe usuario y contraseña y devuelve un JWT</td></tr>
+    <tr><td><code>/auth/validate</code></td><td>GET</td><td>Encabezado <code>Authorization</code></td><td>Indica si el token es válido y devuelve usuario, rol y <code>estudianteId</code></td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra los pasos con el proyecto abierto, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong> Complemente con la <a href="seguridad.html">guía de seguridad</a>.</div>
+</section>
+
+<section class="card">
+  <h2>Estructura del servicio</h2>
+  <pre><code>co.edu.authservice
+├── AuthServiceApplication.java
+├── api          → ApiErrorResponse
+├── config       → SecurityConfig, DataSeeder, OpenApiConfig
+├── controller   → AuthController, GlobalExceptionHandler
+├── dto          → LoginRequest, LoginResponse, TokenValidationResponse
+├── exception    → InvalidCredentialsException, InvalidTokenException
+├── model        → Usuario
+├── repository   → UsuarioRepository
+├── service      → AuthService, AuthServiceImpl
+└── util         → JwtUtils</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — Usuarios y contraseñas</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/model/Usuario.java</code></p>
+<pre><code>package co.edu.authservice.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "usuarios")
+public class Usuario {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String username;
+    @Column(nullable = false)
+    private String password;
+    @Column(nullable = false)
+    private String role;
+    // E4: solo los usuarios con rol ESTUDIANTE quedan asociados a un estudiante de estudiantes-service
+    private Long estudianteId;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    public Long getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(Long estudianteId) { this.estudianteId = estudianteId; }
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/repository/UsuarioRepository.java</code></p>
+<pre><code>package co.edu.authservice.repository;
+
+import co.edu.authservice.model.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UsuarioRepository extends JpaRepository&lt;Usuario, Long&gt; {
+    Optional&lt;Usuario&gt; findByUsername(String username);
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/config/DataSeeder.java</code></p>
+<pre><code>package co.edu.authservice.config;
+
+import co.edu.authservice.model.Usuario;
+import co.edu.authservice.repository.UsuarioRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class DataSeeder {
+    @Bean
+    CommandLineRunner seedUsers(UsuarioRepository repository, PasswordEncoder encoder) {
+        return args -&gt; {
+            if (repository.count() == 0) {
+                repository.save(build("admin", "admin123", "ADMIN", null, encoder));
+                repository.save(build("docente", "docente123", "DOCENTE", null, encoder));
+                // E4: el usuario "estudiante" corresponde al estudiante con id 1
+                repository.save(build("estudiante", "estudiante123", "ESTUDIANTE", 1L, encoder));
+            }
+        };
+    }
+
+    private Usuario build(String username, String rawPassword, String role, Long estudianteId, PasswordEncoder encoder) {
+        Usuario u = new Usuario();
+        u.setUsername(username);
+        u.setPassword(encoder.encode(rawPassword));
+        u.setRole(role);
+        u.setEstudianteId(estudianteId);
+        return u;
+    }
+}</code></pre>
+  <p>Las contraseñas se guardan con <code>encoder.encode</code> (BCrypt). El <code>PasswordEncoder</code> se declara en la configuración de seguridad, que además deja públicos el login, Swagger y la consola H2:</p>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/config/SecurityConfig.java</code></p>
+<pre><code>package co.edu.authservice.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -&gt; csrf.disable())
+                .authorizeHttpRequests(auth -&gt; auth
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**", "/error").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .headers(headers -&gt; headers.frameOptions(frame -&gt; frame.disable()));
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — Contrato de entrada y salida</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/dto/LoginRequest.java</code></p>
+<pre><code>package co.edu.authservice.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public class LoginRequest {
+    @NotBlank
+    private String username;
+    @NotBlank
+    private String password;
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/dto/LoginResponse.java</code></p>
+<pre><code>package co.edu.authservice.dto;
+
+public class LoginResponse {
+    private String token;
+    private String username;
+    private String role;
+
+    public LoginResponse() {
+    }
+
+    public LoginResponse(String token, String username, String role) {
+        this.token = token;
+        this.username = username;
+        this.role = role;
+    }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+}</code></pre>
+  <p>La respuesta del login nunca incluye la contraseña. <code>TokenValidationResponse</code> es el contrato que consumen los demás servicios desde <code>/auth/validate</code>.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Generación y lectura del JWT</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/util/JwtUtils.java</code></p>
+<pre><code>package co.edu.authservice.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+@Component
+public class JwtUtils {
+    @Value("${app.jwt.secret}")
+    private String secret;
+
+    @Value("${app.jwt.expiration-ms}")
+    private long expirationMs;
+
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateToken(String username, String role, Long estudianteId) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + expirationMs);
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(username)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(expiration);
+        // E4: el claim solo existe para usuarios asociados a un estudiante
+        if (estudianteId != null) {
+            builder.claim("estudianteId", estudianteId);
+        }
+        return builder.signWith(getKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    public Claims parseToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/resources/application.yaml</code></p>
+<pre><code>server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:authdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  jwt:
+    secret: 12345678901234567890123456789012
+    expiration-ms: 3600000</code></pre>
+  <p>El secreto debe tener al menos 32 caracteres para HS256. La expiración (<code>expiration-ms</code>) es de una hora.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — La lógica del servicio</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/service/AuthServiceImpl.java</code></p>
+<pre><code>package co.edu.authservice.service;
+
+import co.edu.authservice.dto.LoginRequest;
+import co.edu.authservice.dto.LoginResponse;
+import co.edu.authservice.dto.TokenValidationResponse;
+import co.edu.authservice.exception.InvalidCredentialsException;
+import co.edu.authservice.exception.InvalidTokenException;
+import co.edu.authservice.model.Usuario;
+import co.edu.authservice.repository.UsuarioRepository;
+import co.edu.authservice.util.JwtUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthServiceImpl implements AuthService {
+
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
+
+    public AuthServiceImpl(UsuarioRepository usuarioRepository,
+                           PasswordEncoder passwordEncoder,
+                           JwtUtils jwtUtils) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+        Usuario usuario = usuarioRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -&gt; new InvalidCredentialsException("Credenciales inválidas"));
+
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+            throw new InvalidCredentialsException("Credenciales inválidas");
+        }
+
+        String token = jwtUtils.generateToken(usuario.getUsername(), usuario.getRole(), usuario.getEstudianteId());
+        return new LoginResponse(token, usuario.getUsername(), usuario.getRole());
+    }
+
+    @Override
+    public TokenValidationResponse validate(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new InvalidTokenException("Debe enviar un token Bearer válido");
+        }
+
+        try {
+            String token = authorization.replace("Bearer ", "");
+            var claims = jwtUtils.parseToken(token);
+            return new TokenValidationResponse(
+                    true,
+                    claims.getSubject(),
+                    claims.get("role", String.class),
+                    claims.get("estudianteId", Long.class)
+            );
+        } catch (Exception ex) {
+            throw new InvalidTokenException("Token inválido o expirado");
+        }
+    }
+}</code></pre>
+  <ul>
+    <li><strong>login:</strong> busca el usuario, compara la contraseña y genera el token. El mismo mensaje sirve para usuario inexistente y contraseña incorrecta.</li>
+    <li><strong>validate:</strong> exige el prefijo <code>Bearer</code>, verifica firma y expiración con <code>parseToken</code> y devuelve los datos del token. Cualquier fallo se convierte en <code>InvalidTokenException</code>.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — Controlador y errores</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/controller/AuthController.java</code></p>
+<pre><code>package co.edu.authservice.controller;
+
+import co.edu.authservice.dto.LoginRequest;
+import co.edu.authservice.dto.LoginResponse;
+import co.edu.authservice.dto.TokenValidationResponse;
+import co.edu.authservice.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity&lt;LoginResponse&gt; login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @GetMapping("/validate")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity&lt;TokenValidationResponse&gt; validate(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        return ResponseEntity.ok(authService.validate(authorization));
+    }
+}</code></pre>
+  <p>El encabezado es opcional (<code>required = false</code>) para que su ausencia llegue al servicio y termine en un <code>401</code> claro, no en un <code>500</code>.</p>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/controller/GlobalExceptionHandler.java</code></p>
+<pre><code>@ExceptionHandler(InvalidCredentialsException.class)
+public ResponseEntity&lt;ApiErrorResponse&gt; handleInvalidCredentials(
+        InvalidCredentialsException ex,
+        HttpServletRequest request) {
+
+    ApiErrorResponse response = ApiErrorResponse.of(
+            ex.getMessage(),
+            "AUTH_INVALID_CREDENTIALS",
+            HttpStatus.UNAUTHORIZED.value(),
+            request.getRequestURI()
+    );
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+}
+
+@ExceptionHandler(InvalidTokenException.class)
+public ResponseEntity&lt;ApiErrorResponse&gt; handleInvalidToken(
+        InvalidTokenException ex,
+        HttpServletRequest request) {
+
+    ApiErrorResponse response = ApiErrorResponse.of(
+            ex.getMessage(),
+            "AUTH_INVALID_TOKEN",
+            HttpStatus.UNAUTHORIZED.value(),
+            request.getRequestURI()
+    );
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Swagger: <code>http://localhost:8081/swagger-ui.html</code>.</p>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>POST /auth/login</code> con <code>admin / admin123</code></td><td><code>200</code> con <code>token</code>, <code>username</code> y <code>role</code></td></tr>
+    <tr><td>2</td><td>Login con contraseña incorrecta</td><td><code>401 AUTH_INVALID_CREDENTIALS</code></td></tr>
+    <tr><td>3</td><td>Login con cuerpo <code>{}</code></td><td><code>400 VALIDATION_ERROR</code></td></tr>
+    <tr><td>4</td><td><strong>Authorize</strong> con el token y <code>GET /auth/validate</code></td><td><code>200</code>, <code>"valid": true</code>, <code>"role": "ADMIN"</code></td></tr>
+    <tr><td>5</td><td>Lo mismo con el token de <code>estudiante / estudiante123</code></td><td><code>"estudianteId": 1</code></td></tr>
+    <tr><td>6</td><td><code>GET /auth/validate</code> sin autorizar</td><td><code>401 AUTH_INVALID_TOKEN</code></td></tr>
+    <tr><td>7</td><td><code>GET /auth/validate</code> con el token alterado (cambie una letra)</td><td><code>401 AUTH_INVALID_TOKEN</code></td></tr>
+    <tr><td>8</td><td>Consola H2 (<code>jdbc:h2:mem:authdb</code>): <code>SELECT * FROM usuarios</code></td><td>Contraseñas cifradas y <code>estudiante_id</code> = 1 solo para el estudiante</td></tr>
+  </tbody></table>
+  <p>Pruebas automatizadas: <code>JwtUtilsTest</code> y <code>AuthFlowIntegrationTest</code> (<code>mvn test</code> en <code>auth-service</code>).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>¿Por qué el login responde el mismo mensaje cuando el usuario no existe y cuando la contraseña es incorrecta?</li>
+    <li>BCrypt genera un hash distinto cada vez aunque la contraseña sea la misma. ¿Cómo puede entonces <code>matches</code> verificarla?</li>
+    <li>¿Qué sucede con un token emitido antes de que expire si el administrador cambia el rol del usuario? ¿Cómo se podría resolver?</li>
+    <li><code>/auth/validate</code> responde <code>401</code> ante cualquier falla del token. ¿Qué información se pierde y por qué podría ser una decisión intencional?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

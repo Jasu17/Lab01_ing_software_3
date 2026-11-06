@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Descarga del Proyecto Base - Ingeniería de Software III</title>
+  <style>
+    :root{
+      --blue:#1f3c88;
+      --blue-dark:#162c66;
+      --text:#1f2937;
+      --muted:#4b5563;
+      --bg:#f5f7fb;
+      --white:#ffffff;
+      --border:#dbe3f2;
+      --soft:#eef4ff;
+      --shadow:0 10px 24px rgba(31,60,136,.08);
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    .hero{
+      background:linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+      padding:48px 20px;
+      text-align:center;
+    }
+
+    .hero h1{
+      margin:0 0 12px;
+      font-size:2.2rem;
+    }
+
+    .hero p{
+      margin:0 auto;
+      max-width:900px;
+      font-size:1.02rem;
+      color:#eaf0ff;
+    }
+
+    .container{
+      width:min(1000px, calc(100% - 32px));
+      margin:32px auto 50px;
+    }
+
+    .card{
+      background:var(--white);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      margin-bottom:22px;
+    }
+
+    h2{
+      color:var(--blue);
+      margin-top:0;
+      margin-bottom:14px;
+      font-size:1.5rem;
+    }
+
+    p{
+      margin:0 0 14px;
+    }
+
+    .repo-box{
+      background:var(--soft);
+      border:1px solid #cfdcff;
+      border-radius:14px;
+      padding:18px;
+      margin:18px 0;
+      overflow:auto;
+    }
+
+    .repo-box code{
+      font-family:Consolas, Monaco, 'Courier New', monospace;
+      font-size:.95rem;
+      color:var(--blue-dark);
+      word-break:break-all;
+    }
+
+    .btn{
+      display:inline-block;
+      background:var(--blue);
+      color:#fff;
+      text-decoration:none;
+      padding:14px 22px;
+      border-radius:12px;
+      font-weight:bold;
+      transition:.2s ease;
+      margin-top:8px;
+    }
+
+    .btn:hover{
+      background:var(--blue-dark);
+    }
+
+    .steps{
+      margin:16px 0 0;
+      padding-left:22px;
+    }
+
+    .steps li{
+      margin-bottom:10px;
+    }
+
+    .note{
+      background:#fff8e8;
+      border:1px solid #f3d28a;
+      border-radius:14px;
+      padding:16px 18px;
+      margin-top:18px;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:.95rem;
+      padding:10px 0 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <h1>Descarga del proyecto final</h1>
+    <p>
+      El proyecto final del curso es una plataforma académica terminada: cinco microservicios con seguridad JWT,
+      comunicación entre servicios, documentación en Swagger, pruebas automatizadas y despliegue con Docker.
+      Descárguela o clónela para analizarla con las guías del curso.
+    </p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Repositorio del proyecto</h2>
+      <p>
+        El proyecto se encuentra disponible en la siguiente ruta de GitHub:
+      </p>
+
+      <div class="repo-box">
+        <code>https://github.com/alejandroria94/proyecto-s3.git</code>
+      </div>
+
+      <p>
+        El repositorio contiene el código completo, el <code>README.md</code> con las instrucciones de ejecución
+        y la carpeta <code>instrucciones/</code> con las guías de análisis de cada módulo y de cada extensión.
+      </p>
+
+      <a class="btn" href="https://github.com/alejandroria94/proyecto-s3.git" target="_blank" rel="noopener noreferrer">
+        Ir al repositorio
+      </a><br>
+       <a class="btn" href="/proyecto-s3/instrucciones"  rel="noopener noreferrer">
+        Ver Instrucciones
+      </a>
+
+    </section>
+
+    <section class="card">
+      <h2>¿Qué debe hacer el estudiante?</h2>
+      <ol class="steps">
+        <li>Ingresar al repositorio del proyecto base en GitHub.</li>
+        <li>Descargar el proyecto como archivo ZIP o clonarlo con Git.</li>
+        <li>Abrir la solución en su entorno de desarrollo.</li>
+        <li>Compilar y ejecutar los cinco servicios siguiendo el <code>README.md</code>, y ejecutar las pruebas con <code>mvn test</code>.</li>
+        <li>Recorrer las guías de análisis en el orden indicado en las instrucciones, ejecutar sus verificaciones y responder sus preguntas.</li>
+      </ol>
+
+      <div class="note">
+        <strong>Recomendación:</strong> clone el repositorio con Git: así puede usar el historial y las búsquedas del IDE para ubicar rápidamente los archivos que mencionan las guías.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Comando sugerido para clonar el repositorio</h2>
+      <div class="repo-box">
+        <code>git clone https://github.com/alejandroria94/proyecto-s3.git</code>
+      </div>
+      <p>
+        Después de clonar el repositorio, ubíquese en la carpeta del proyecto, siga el <code>README.md</code> para ejecutarlo y continúe con las guías de análisis.
+      </p>
+    </section>
+  </main>
+
+  <div class="footer">
+    Ingeniería de Software III · Proyecto final guiado
+  </div>
+
+</body>
+</html>

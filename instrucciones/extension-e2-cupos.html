@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2 · Cupos por curso</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="proyecto-final-guiado.html#extensiones">← Volver a la guía general</a>
+    <h1>E2 · Cupos por curso</h1>
+    <p>Guía de análisis: una regla de negocio que necesita datos de otro microservicio</p>
+    <div class="nav"><a href="extension-e2-cupos.html" class="actual">E2 Cupos</a><a href="extension-e1-integridad.html">E1 Integridad</a><a href="extension-e4-mis-matriculas.html">E4 Mis matrículas</a><a href="extension-e3-calificaciones.html">E3 Calificaciones</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Qué resuelve esta extensión</h2>
+  <p>En la versión base, un curso aceptaba matrículas sin límite. Con E2 cada curso define un <code>cupoMaximo</code> y <code>matriculas-service</code> rechaza la matrícula cuando el curso está lleno.</p>
+  <p>Lo interesante es <strong>dónde vive cada dato</strong>: el cupo pertenece a <code>cursos-service</code>, pero las matrículas activas se cuentan en <code>matriculas-service</code>. Ningún servicio tiene toda la información por sí solo, y la regla solo se puede aplicar combinando ambos.</p>
+  <table><thead><tr><th>Situación</th><th>Antes</th><th>Con E2</th></tr></thead><tbody>
+    <tr><td>Matricular en un curso lleno</td><td><code>201</code>, sin control</td><td><code>400</code> "El curso no tiene cupos disponibles (2/2)"</td></tr>
+    <tr><td>Anular una matrícula</td><td>Cambia el estado</td><td>Cambia el estado y además libera un cupo</td></tr>
+    <tr><td>Reducir el cupo por debajo de las matrículas activas</td><td>No existía el campo</td><td><code>400</code> "El cupo no puede ser menor que…"</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Abra el proyecto en el IDE, recorra los pasos comparando con los archivos reales, ejecute la verificación y responda las preguntas de análisis del final. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Mapa de cambios</h2>
+  <table><thead><tr><th>Servicio</th><th>Archivo</th><th>Cambio</th></tr></thead><tbody>
+    <tr><td rowspan="5">cursos-service</td><td><code>model/Curso</code></td><td>Nuevo campo <code>cupoMaximo</code></td></tr>
+    <tr><td><code>dto/CursoCreateDTO</code>, <code>CursoUpdateDTO</code>, <code>CursoDTO</code></td><td>El campo y sus validaciones (1–60)</td></tr>
+    <tr><td><code>handler/CursoHandler</code></td><td>Copia el campo entre DTO y entidad</td></tr>
+    <tr><td><code>config/DataSeeder</code></td><td><code>RED-001</code> con cupo 2, para probar rápido</td></tr>
+    <tr><td><code>service/CursoServiceImpl</code></td><td>Reto: no reducir el cupo por debajo de las activas</td></tr>
+    <tr><td rowspan="3">matriculas-service</td><td><code>dto/CursoRemotoDTO</code></td><td>Recibe <code>cupoMaximo</code> desde cursos-service</td></tr>
+    <tr><td><code>repository/MatriculaRepository</code></td><td>Consultas de conteo</td></tr>
+    <tr><td><code>service/MatriculaServiceImpl</code></td><td>La regla del cupo al registrar</td></tr>
+  </tbody></table>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — El cupo es un dato del curso</h2>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/model/Curso.java</code></p>
+<pre><code>package co.edu.cursosservice.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "curso", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_curso_codigo", columnNames = {"codigo"})
+})
+public class Curso {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 20)
+    private String codigo;
+
+    @Column(nullable = false, length = 150)
+    private String nombre;
+
+    @Column(length = 500)
+    private String descripcion;
+
+    @Column(nullable = false)
+    private Integer creditos;
+
+    @Column(nullable = false, length = 150)
+    private String docenteResponsable;
+
+    // E2: cantidad máxima de matrículas activas
+    @Column(nullable = false)
+    private Integer cupoMaximo;
+
+    public Curso() {
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public Integer getCreditos() { return creditos; }
+    public void setCreditos(Integer creditos) { this.creditos = creditos; }
+    public String getDocenteResponsable() { return docenteResponsable; }
+    public void setDocenteResponsable(String docenteResponsable) { this.docenteResponsable = docenteResponsable; }
+    public Integer getCupoMaximo() { return cupoMaximo; }
+    public void setCupoMaximo(Integer cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+}</code></pre>
+  <p>La columna es <code>nullable = false</code>: todo curso debe tener cupo. La validación de entrada está en los DTO:</p>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/dto/CursoCreateDTO.java</code></p>
+<pre><code>package co.edu.cursosservice.dto;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public class CursoCreateDTO {
+
+    @NotBlank(message = "El código es obligatorio")
+    @Size(max = 20, message = "El código admite máximo 20 caracteres")
+    private String codigo;
+
+    @NotBlank(message = "El nombre es obligatorio")
+    private String nombre;
+
+    @Size(max = 500, message = "La descripción admite máximo 500 caracteres")
+    private String descripcion;
+
+    @NotNull(message = "Los créditos son obligatorios")
+    @Min(value = 1, message = "Los créditos mínimos son 1")
+    @Max(value = 10, message = "Los créditos máximos son 10")
+    private Integer creditos;
+
+    @NotBlank(message = "El docente responsable es obligatorio")
+    private String docenteResponsable;
+
+    @NotNull(message = "El cupo máximo es obligatorio")
+    @Min(value = 1, message = "El cupo mínimo es 1")
+    @Max(value = 60, message = "El cupo máximo es 60")
+    private Integer cupoMaximo;
+
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public Integer getCreditos() { return creditos; }
+    public void setCreditos(Integer creditos) { this.creditos = creditos; }
+    public String getDocenteResponsable() { return docenteResponsable; }
+    public void setDocenteResponsable(String docenteResponsable) { this.docenteResponsable = docenteResponsable; }
+    public Integer getCupoMaximo() { return cupoMaximo; }
+    public void setCupoMaximo(Integer cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+}</code></pre>
+  <p><code>CursoUpdateDTO</code> tiene las mismas reglas. <code>CursoDTO</code> incluye el campo para que el cupo viaje en las respuestas de <code>GET /api/cursos/{id}</code>. El handler lo copia en las dos direcciones (busque <code>setCupoMaximo</code> en <code>CursoHandler</code>).</p>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/config/DataSeeder.java</code></p>
+<pre><code>package co.edu.cursosservice.config;
+
+import co.edu.cursosservice.model.Curso;
+import co.edu.cursosservice.repository.CursoRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class DataSeeder {
+
+    @Bean
+    CommandLineRunner seedCursos(CursoRepository repository) {
+        return args -&gt; {
+            if (repository.count() &gt; 0) return;
+
+            repository.save(curso("IS3-001", "Ingeniería de Software III", "Arquitectura y microservicios", 4, "Docente principal", 30));
+            repository.save(curso("BD2-001", "Bases de Datos II", "Modelado avanzado y SQL", 3, "Docente de bases de datos", 25));
+            // Cupo pequeño a propósito, para probar E2 rápidamente
+            repository.save(curso("RED-001", "Redes de Computadores", "Fundamentos de redes TCP/IP", 3, "Docente de redes", 2));
+        };
+    }
+
+    private Curso curso(String codigo, String nombre, String descripcion, int creditos, String docente, int cupo) {
+        Curso c = new Curso();
+        c.setCodigo(codigo);
+        c.setNombre(nombre);
+        c.setDescripcion(descripcion);
+        c.setCreditos(creditos);
+        c.setDocenteResponsable(docente);
+        c.setCupoMaximo(cupo);
+        return c;
+    }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — Matrículas conoce el cupo sin guardarlo</h2>
+  <p><code>matriculas-service</code> ya consultaba <code>GET /api/cursos/{id}</code> para verificar que el curso existe. Basta con agregar el campo a su copia local del contrato:</p>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/dto/CursoRemotoDTO.java</code></p>
+<pre><code>package co.edu.matriculasservice.dto;
+
+public class CursoRemotoDTO {
+    private Long id;
+    private String codigo;
+    private String nombre;
+    private Integer creditos;
+    private Integer cupoMaximo;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public Integer getCreditos() { return creditos; }
+    public void setCreditos(Integer creditos) { this.creditos = creditos; }
+    public Integer getCupoMaximo() { return cupoMaximo; }
+    public void setCupoMaximo(Integer cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+}</code></pre>
+  <div class="note"><strong>Observe:</strong> matrículas <strong>no</strong> guarda el cupo en su base de datos; lo pide cada vez. Así, si un administrador cambia el cupo, la siguiente matrícula ya usa el valor nuevo.</div>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Contar sin traer los datos</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/repository/MatriculaRepository.java</code></p>
+<pre><code>package co.edu.matriculasservice.repository;
+
+import co.edu.matriculasservice.model.EstadoMatricula;
+import co.edu.matriculasservice.model.Matricula;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface MatriculaRepository extends JpaRepository&lt;Matricula, Long&gt; {
+    boolean existsByEstudianteIdAndCursoIdAndEstado(Long estudianteId, Long cursoId, EstadoMatricula estado);
+    long countByCursoIdAndEstado(Long cursoId, EstadoMatricula estado);
+    long countByEstudianteIdAndEstado(Long estudianteId, EstadoMatricula estado);
+    List&lt;Matricula&gt; findByEstudianteIdOrderByIdDesc(Long estudianteId);
+}</code></pre>
+  <p>Spring Data genera la consulta a partir del nombre del método: <code>countByCursoIdAndEstado</code> se traduce a <code>SELECT COUNT(*) FROM matricula WHERE curso_id = ? AND estado = ?</code>. Contar en la base de datos es mucho más eficiente que traer todas las matrículas y contarlas en Java.</p>
+  <p>Los otros dos métodos nuevos los usan E1 (<code>countByEstudianteIdAndEstado</code>) y E4 (<code>findByEstudianteIdOrderByIdDesc</code>).</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — La regla en el servicio de matrículas</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/service/MatriculaServiceImpl.java</code></p>
+<pre><code>public Matricula registrar(Long estudianteId, Long cursoId) {
+    obtenerRemoto("estudiante", () -&gt; estudiantesClient.buscarPorId(estudianteId));
+    CursoRemotoDTO curso = obtenerRemoto("curso", () -&gt; cursosClient.buscarPorId(cursoId));
+
+    if (repository.existsByEstudianteIdAndCursoIdAndEstado(estudianteId, cursoId, EstadoMatricula.ACTIVA)) {
+        throw new BusinessException("Ya existe una matrícula activa para el estudiante y curso indicados");
+    }
+
+    // E2: el cupo viene de cursos-service; las matrículas activas se cuentan en la base propia
+    long activas = repository.countByCursoIdAndEstado(cursoId, EstadoMatricula.ACTIVA);
+    if (curso.getCupoMaximo() != null &amp;&amp; activas &gt;= curso.getCupoMaximo()) {
+        throw new BusinessException("El curso no tiene cupos disponibles (" + activas + "/" + curso.getCupoMaximo() + ")");
+    }
+
+    Matricula matricula = new Matricula();
+    matricula.setEstudianteId(estudianteId);
+    matricula.setCursoId(cursoId);
+    matricula.setFechaMatricula(LocalDate.now());
+    matricula.setEstado(EstadoMatricula.ACTIVA);
+    return repository.save(matricula);</code></pre>
+  <p>Orden de las validaciones: <strong>estudiante → curso → duplicado → cupo</strong>. Solo se cuentan las matrículas <code>ACTIVA</code>; por eso anular una matrícula libera el cupo.</p>
+  <p>El método auxiliar que consulta a los otros servicios ahora <strong>devuelve</strong> el dato remoto (antes solo verificaba que existiera). Es genérico (<code>&lt;T&gt;</code>) para servir igual para estudiantes y para cursos:</p>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/service/MatriculaServiceImpl.java</code></p>
+<pre><code>private &lt;T&gt; T obtenerRemoto(String recurso, Supplier&lt;RemoteApiResponse&lt;T&gt;&gt; llamada) {
+    try {
+        RemoteApiResponse&lt;T&gt; response = llamada.get();
+        if (response == null || !response.isSuccess() || response.getData() == null) {
+            throw new BusinessException("El " + recurso + " indicado no existe");
+        }
+        return response.getData();
+    } catch (FeignException.NotFound ex) {
+        throw new BusinessException("El " + recurso + " indicado no existe");
+    } catch (FeignException.Unauthorized | FeignException.Forbidden ex) {
+        throw new RemoteServiceException("No fue posible validar el " + recurso + ": el servicio remoto rechazó el token");
+    } catch (FeignException ex) {
+        throw new RemoteServiceException("No fue posible consultar el " + recurso + " (código remoto " + ex.status() + ")");
+    }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — Reto: no reducir el cupo por debajo de las matrículas activas</h2>
+  <p class="file">Archivo: <code>cursos-service/src/main/java/co/edu/cursosservice/service/CursoServiceImpl.java</code></p>
+<pre><code>public Curso actualizar(Long id, Curso curso) {
+    Curso actual = obtenerPorId(id);
+    if (repository.existsByCodigoAndIdNot(curso.getCodigo(), id)) {
+        throw new BusinessException("Ya existe otro curso con el código: " + curso.getCodigo());
+    }
+    // Reto E2: solo al reducir el cupo hace falta preguntar cuántas matrículas activas hay
+    if (curso.getCupoMaximo() &lt; actual.getCupoMaximo()) {
+        long activas = contarMatriculasActivas(id);
+        if (activas &gt; curso.getCupoMaximo()) {
+            throw new BusinessException("El cupo no puede ser menor que las " + activas + " matrícula(s) activa(s) del curso");
+        }
+    }
+    actual.setCodigo(curso.getCodigo());
+    actual.setNombre(curso.getNombre());
+    actual.setDescripcion(curso.getDescripcion());
+    actual.setCreditos(curso.getCreditos());
+    actual.setDocenteResponsable(curso.getDocenteResponsable());
+    actual.setCupoMaximo(curso.getCupoMaximo());
+    return repository.save(actual);
+}</code></pre>
+  <p>Solo cuando el cupo <strong>baja</strong> hace falta preguntarle a matrículas cuántas activas hay. Para eso <code>cursos-service</code> usa el cliente Feign que se explica en <a href="extension-e1-integridad.html">E1</a>.</p>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Levante los servicios, inicie sesión como <code>admin</code> y use el Swagger de cada servicio:</p>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>GET /api/cursos/3</code> (8083)</td><td><code>RED-001</code> con <code>"cupoMaximo": 2</code></td></tr>
+    <tr><td>2</td><td><code>POST /api/matriculas</code> (8084) con <code>{"estudianteId":1,"cursoId":3}</code></td><td><code>201</code></td></tr>
+    <tr><td>3</td><td>Lo mismo con <code>estudianteId: 2</code></td><td><code>201</code></td></tr>
+    <tr><td>4</td><td>Lo mismo con <code>estudianteId: 3</code></td><td><code>400</code> "El curso no tiene cupos disponibles (2/2)"</td></tr>
+    <tr><td>5</td><td><code>PUT /api/matriculas/2/anular</code></td><td><code>200</code>, estado <code>ANULADA</code></td></tr>
+    <tr><td>6</td><td>Repetir el paso 4</td><td><code>201</code>: se liberó un cupo</td></tr>
+    <tr><td>7</td><td><code>PUT /api/cursos/3</code> con los mismos datos y <code>"cupoMaximo": 1</code></td><td><code>400</code> "El cupo no puede ser menor que las 2 matrícula(s) activa(s) del curso"</td></tr>
+    <tr><td>8</td><td><code>POST /api/cursos</code> sin <code>cupoMaximo</code></td><td><code>400</code> "El cupo máximo es obligatorio"</td></tr>
+  </tbody></table>
+  <p>Pruebas automatizadas relacionadas: <code>MatriculaServiceImplTest</code> (<code>rechazaLaMatriculaCuandoElCursoEstaLleno</code>, <code>registraLaMatriculaCuandoQuedaCupo</code>) y <code>CursoServiceImplTest</code> (<code>noReduceElCupoPorDebajoDeLasMatriculasActivas</code>, <code>aumentarElCupoNoConsultaMatriculas</code>). Ejecútelas con <code>mvn test</code> en cada servicio.</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>¿Por qué el cupo se guarda en <code>cursos-service</code> y el conteo se hace en <code>matriculas-service</code>? ¿Qué problema aparecería si matrículas guardara su propia copia del cupo?</li>
+    <li>Dos administradores registran al mismo tiempo la última matrícula disponible de un curso. ¿Pueden pasar ambas? Explique por qué, usando el código del paso 4, y proponga una forma de evitarlo.</li>
+    <li>¿Por qué la validación del cupo va después de la del duplicado? ¿Qué mensaje recibiría el usuario si el orden fuera el inverso?</li>
+    <li>En el reto, ¿por qué solo se consulta a matrículas cuando el cupo baja? ¿Qué se ahorra?</li>
+    <li>El código comprueba <code>curso.getCupoMaximo() != null</code>. ¿En qué situación real podría llegar un cupo nulo, si en cursos-service es obligatorio?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

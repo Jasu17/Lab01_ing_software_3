@@ -1,0 +1,54 @@
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+
+  estudiantes-service:
+    build: ./estudiantes-service
+    container_name: estudiantes-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+    ports:
+      - "8082:8082"
+
+  cursos-service:
+    build: ./cursos-service
+    container_name: cursos-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+    ports:
+      - "8083:8083"
+
+  matriculas-service:
+    build: ./matriculas-service
+    container_name: matriculas-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      ESTUDIANTES_SERVICE_URL: http://estudiantes-service:8082
+      CURSOS_SERVICE_URL: http://cursos-service:8083
+    depends_on:
+      - auth-service
+      - estudiantes-service
+      - cursos-service
+    ports:
+      - "8084:8084"
+
+  calificaciones-service:
+    build: ./calificaciones-service
+    container_name: calificaciones-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+      - matriculas-service
+    ports:
+      - "8085:8085"

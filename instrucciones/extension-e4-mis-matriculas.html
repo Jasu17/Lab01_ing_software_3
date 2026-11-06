@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E4 · Mis matrículas</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="proyecto-final-guiado.html#extensiones">← Volver a la guía general</a>
+    <h1>E4 · Mis matrículas</h1>
+    <p>Guía de análisis: autorizar por dueño del recurso, no solo por rol</p>
+    <div class="nav"><a href="extension-e2-cupos.html">E2 Cupos</a><a href="extension-e1-integridad.html">E1 Integridad</a><a href="extension-e4-mis-matriculas.html" class="actual">E4 Mis matrículas</a><a href="extension-e3-calificaciones.html">E3 Calificaciones</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Qué resuelve esta extensión</h2>
+  <p>Hasta el Lab 07 la autorización era solo por <strong>rol</strong>: un ADMIN puede todo, un DOCENTE consulta, un ESTUDIANTE ve cursos. Pero "un estudiante puede ver <em>sus</em> matrículas" no se puede expresar con roles: todos los estudiantes tienen el mismo rol y cada uno debe ver solo lo suyo. Eso es autorización por <strong>dueño del recurso</strong>.</p>
+  <p>La solución: el token del estudiante lleva su <code>estudianteId</code>, y <code>GET /api/matriculas/mias</code> usa ese dato del token, nunca un parámetro enviado por el cliente.</p>
+  <table><thead><tr><th>Usuario</th><th><code>GET /api/matriculas</code></th><th><code>GET /api/matriculas/mias</code></th></tr></thead><tbody>
+    <tr><td>ADMIN / DOCENTE</td><td><code>200</code>, todas</td><td><code>403</code> (no es estudiante)</td></tr>
+    <tr><td>ESTUDIANTE</td><td><code>403</code></td><td><code>200</code>, solo las propias</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra los pasos con el proyecto abierto, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Recorrido del dato <code>estudianteId</code></h2>
+  <pre><code>auth-service                         matriculas-service
+────────────                         ──────────────────
+Usuario.estudianteId = 1
+      │ login
+      ▼
+JWT { sub: "estudiante", role: "ESTUDIANTE", estudianteId: 1 }
+      │                                   GET /api/matriculas/mias (Bearer JWT)
+      │                                        │
+      │◄──── GET /auth/validate ───────── AuthValidationFilter
+      │───── {valid, username, role, estudianteId} ──►│
+                                               ▼
+                         principal = UsuarioAutenticado("estudiante", "ESTUDIANTE", 1)
+                                               ▼
+                         SecurityConfig: /mias → solo ESTUDIANTE
+                                               ▼
+                         Controller: @AuthenticationPrincipal → listarPorEstudiante(1)</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — El usuario queda asociado a un estudiante</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/model/Usuario.java</code></p>
+<pre><code>package co.edu.authservice.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "usuarios")
+public class Usuario {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String username;
+    @Column(nullable = false)
+    private String password;
+    @Column(nullable = false)
+    private String role;
+    // E4: solo los usuarios con rol ESTUDIANTE quedan asociados a un estudiante de estudiantes-service
+    private Long estudianteId;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    public Long getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(Long estudianteId) { this.estudianteId = estudianteId; }
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/config/DataSeeder.java</code></p>
+<pre><code>package co.edu.authservice.config;
+
+import co.edu.authservice.model.Usuario;
+import co.edu.authservice.repository.UsuarioRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class DataSeeder {
+    @Bean
+    CommandLineRunner seedUsers(UsuarioRepository repository, PasswordEncoder encoder) {
+        return args -&gt; {
+            if (repository.count() == 0) {
+                repository.save(build("admin", "admin123", "ADMIN", null, encoder));
+                repository.save(build("docente", "docente123", "DOCENTE", null, encoder));
+                // E4: el usuario "estudiante" corresponde al estudiante con id 1
+                repository.save(build("estudiante", "estudiante123", "ESTUDIANTE", 1L, encoder));
+            }
+        };
+    }
+
+    private Usuario build(String username, String rawPassword, String role, Long estudianteId, PasswordEncoder encoder) {
+        Usuario u = new Usuario();
+        u.setUsername(username);
+        u.setPassword(encoder.encode(rawPassword));
+        u.setRole(role);
+        u.setEstudianteId(estudianteId);
+        return u;
+    }
+}</code></pre>
+  <p>Solo el usuario <code>estudiante</code> tiene <code>estudianteId</code> (el estudiante 1). Para ADMIN y DOCENTE es <code>null</code>.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — El dato viaja dentro del token</h2>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/util/JwtUtils.java</code></p>
+<pre><code>package co.edu.authservice.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+@Component
+public class JwtUtils {
+    @Value("${app.jwt.secret}")
+    private String secret;
+
+    @Value("${app.jwt.expiration-ms}")
+    private long expirationMs;
+
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateToken(String username, String role, Long estudianteId) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + expirationMs);
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(username)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(expiration);
+        // E4: el claim solo existe para usuarios asociados a un estudiante
+        if (estudianteId != null) {
+            builder.claim("estudianteId", estudianteId);
+        }
+        return builder.signWith(getKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    public Claims parseToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/service/AuthServiceImpl.java</code></p>
+<pre><code>public TokenValidationResponse validate(String authorization) {
+    if (authorization == null || !authorization.startsWith("Bearer ")) {
+        throw new InvalidTokenException("Debe enviar un token Bearer válido");
+    }
+
+    try {
+        String token = authorization.replace("Bearer ", "");
+        var claims = jwtUtils.parseToken(token);
+        return new TokenValidationResponse(
+                true,
+                claims.getSubject(),
+                claims.get("role", String.class),
+                claims.get("estudianteId", Long.class)
+        );
+    } catch (Exception ex) {
+        throw new InvalidTokenException("Token inválido o expirado");
+    }
+}</code></pre>
+  <div class="warning"><strong>Detalle técnico:</strong> JJWT lee los números pequeños del token como <code>Integer</code>. Por eso se usa <code>claims.get("estudianteId", Long.class)</code>, que hace la conversión. Un <em>cast</em> directo (<code>(Long) claims.get("estudianteId")</code>) lanzaría <code>ClassCastException</code>.</div>
+  <p class="file">Archivo: <code>auth-service/src/main/java/co/edu/authservice/dto/TokenValidationResponse.java</code></p>
+<pre><code>package co.edu.authservice.dto;
+
+public class TokenValidationResponse {
+    private boolean valid;
+    private String username;
+    private String role;
+    private Long estudianteId;
+
+    public TokenValidationResponse() {
+    }
+
+    public TokenValidationResponse(boolean valid, String username, String role, Long estudianteId) {
+        this.valid = valid;
+        this.username = username;
+        this.role = role;
+        this.estudianteId = estudianteId;
+    }
+
+    public boolean isValid() { return valid; }
+    public void setValid(boolean valid) { this.valid = valid; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    public Long getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(Long estudianteId) { this.estudianteId = estudianteId; }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Matrículas guarda un principal propio</h2>
+  <p>En los demás servicios, el filtro guarda en el <code>SecurityContext</code> solo el nombre del usuario. Matrículas necesita además el <code>estudianteId</code>, así que usa un objeto propio:</p>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/security/UsuarioAutenticado.java</code></p>
+<pre><code>package co.edu.matriculasservice.security;
+
+import java.security.Principal;
+
+/**
+ * Principal que el filtro guarda en el SecurityContext. Además del usuario y el rol,
+ * conserva el estudiante asociado (E4) para autorizar por dueño del recurso.
+ */
+public record UsuarioAutenticado(String username, String role, Long estudianteId) implements Principal {
+
+    @Override
+    public String getName() {
+        return username;
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/security/AuthValidationFilter.java</code></p>
+<pre><code>UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+        new UsuarioAutenticado(validation.getUsername(), validation.getRole(), validation.getEstudianteId()),
+        null,
+        List.of(new SimpleGrantedAuthority(validation.getRole()))
+);
+SecurityContextHolder.getContext().setAuthentication(authentication);</code></pre>
+  <p>Como <code>UsuarioAutenticado</code> implementa <code>Principal</code>, <code>authentication.getName()</code> sigue devolviendo el nombre del usuario y el resto del código no se entera del cambio.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — La regla de seguridad y su orden</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/config/SecurityConfig.java</code></p>
+<pre><code>// E4: debe ir ANTES de la regla general; gana la primera regla que coincide
+.requestMatchers(HttpMethod.GET, "/api/matriculas/mias").hasAuthority("ESTUDIANTE")
+.requestMatchers(HttpMethod.GET, "/api/matriculas/**").hasAnyAuthority("ADMIN", "DOCENTE")</code></pre>
+  <p>Spring Security evalúa las reglas <strong>en orden</strong> y aplica la primera que coincide. <code>/api/matriculas/mias</code> también coincide con <code>/api/matriculas/**</code>; si la regla general estuviera primero, el estudiante recibiría siempre <code>403</code>.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — El endpoint toma el id del token</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/controller/MatriculaController.java</code></p>
+<pre><code>// E4: el estudiante se toma del token, nunca de un parámetro de la petición
+@GetMapping("/mias")
+public ResponseEntity&lt;ApiResponse&lt;List&lt;MatriculaDTO&gt;&gt;&gt; misMatriculas(
+        @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+    if (usuario == null || usuario.estudianteId() == null) {
+        throw new AccessDeniedException("El usuario no tiene un estudiante asociado");
+    }
+    return ResponseBuilder.ok("OK", handler.listarPorEstudiante(usuario.estudianteId()));
+}</code></pre>
+  <p><code>@AuthenticationPrincipal</code> entrega el objeto que el filtro guardó. El endpoint <strong>no recibe ningún id</strong>: así es imposible pedir las matrículas de otra persona. Si un usuario ESTUDIANTE no tuviera estudiante asociado, se lanza <code>AccessDeniedException</code>, que el manejador global convierte en un <code>403</code> con el formato uniforme:</p>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/controller/GlobalExceptionHandler.java</code></p>
+<pre><code>@ExceptionHandler(AccessDeniedException.class)
+public ResponseEntity&lt;ApiErrorResponse&gt; handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiErrorResponse.of(ex.getMessage(), "AUTH_FORBIDDEN", HttpStatus.FORBIDDEN.value(), request.getRequestURI()));
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td>Login como <code>estudiante / estudiante123</code> y <code>GET /auth/validate</code> con ese token</td><td><code>"estudianteId": 1</code></td></tr>
+    <tr><td>2</td><td>Verificar que haya matrículas de varios estudiantes (después de E2 existen las de los estudiantes 1, 2 y 3; si parte de cero, regístrelas como ADMIN)</td><td>—</td></tr>
+    <tr><td>3</td><td>Como estudiante, <code>GET /api/matriculas/mias</code></td><td>Solo las matrículas del estudiante 1</td></tr>
+    <tr><td>4</td><td>Como estudiante, <code>GET /api/matriculas</code></td><td><code>403 AUTH_FORBIDDEN</code></td></tr>
+    <tr><td>5</td><td>Como estudiante, <code>GET /api/matriculas/2</code> (de otro estudiante)</td><td><code>403</code></td></tr>
+    <tr><td>6</td><td>Como ADMIN, <code>GET /api/matriculas/mias</code></td><td><code>403</code></td></tr>
+  </tbody></table>
+  <p>Pruebas automatizadas relacionadas: <code>JwtUtilsTest</code> y <code>AuthFlowIntegrationTest</code> (auth-service), y <code>MatriculaControllerSecurityTest</code> (matriculas-service, 4 casos).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>Otro diseño posible sería <code>GET /api/matriculas?estudianteId=1</code> abierto al rol ESTUDIANTE. ¿Qué vulnerabilidad tendría? (Busque el término <em>IDOR</em>.)</li>
+    <li>¿Qué pasaría si se invirtiera el orden de las dos reglas del paso 4? Compruébelo mentalmente con la petición del estudiante.</li>
+    <li>El <code>estudianteId</code> viaja en el token. Si un administrador cambia la asociación usuario–estudiante, ¿cuándo se entera matrículas? Compare con consultar la asociación en cada petición.</li>
+    <li>¿Por qué <code>UsuarioAutenticado</code> es un <code>record</code> que implementa <code>Principal</code>? ¿Qué se rompería si fuera un objeto cualquiera?</li>
+    <li>¿Podría un estudiante fabricar un token con otro <code>estudianteId</code>? ¿Qué lo impide?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

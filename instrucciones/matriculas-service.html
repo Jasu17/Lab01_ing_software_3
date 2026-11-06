@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de análisis · matriculas-service</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="index.html">← Volver al portal</a>
+    <h1>Guía de análisis · matriculas-service</h1>
+    <p>El servicio integrador: reglas de negocio que dependen de otros servicios</p>
+    <div class="nav"><a href="seguridad.html">Seguridad</a><a href="auth-service.html">auth</a><a href="estudiantes-service.html">estudiantes</a><a href="cursos-service.html">cursos</a><a href="matriculas-service.html" class="actual">matrículas</a><a href="docker-pruebas.html">Docker y pruebas</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Propósito del módulo</h2>
+  <p><code>matriculas-service</code> es el módulo más integrador del proyecto: una matrícula relaciona datos que pertenecen a otros servicios (el estudiante y el curso). Aquí se ve por qué la arquitectura distribuida exige cuidado: cada operación depende de que otros servicios respondan, y sus errores deben traducirse a errores propios.</p>
+  <table><thead><tr><th>Endpoint</th><th>Método</th><th>Rol</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>/api/matriculas</code></td><td>POST</td><td>ADMIN</td><td>Registra <code>{"estudianteId","cursoId"}</code></td></tr>
+    <tr><td><code>/api/matriculas?page=0&amp;size=10</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td>Listado paginado</td></tr>
+    <tr><td><code>/api/matriculas/{id}</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td>Una matrícula</td></tr>
+    <tr><td><code>/api/matriculas/{id}/anular</code></td><td>PUT</td><td>ADMIN</td><td>Cambia el estado a <code>ANULADA</code></td></tr>
+    <tr><td><code>/api/matriculas/activas/conteo</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td>Conteo para otros servicios (<a href="extension-e1-integridad.html">E1</a>)</td></tr>
+    <tr><td><code>/api/matriculas/mias</code></td><td>GET</td><td>ESTUDIANTE</td><td>Matrículas propias (<a href="extension-e4-mis-matriculas.html">E4</a>)</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra los pasos con el proyecto abierto, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Una petición, varias llamadas</h2>
+  <pre><code>POST /api/matriculas (Bearer T) ──► matriculas-service
+   1. AuthValidationFilter ──► auth-service /auth/validate
+   2. EstudiantesClient    ──► estudiantes-service /api/estudiantes/{id}  (Bearer T) ──► auth-service
+   3. CursosClient         ──► cursos-service /api/cursos/{id}            (Bearer T) ──► auth-service
+   4. ¿matrícula ACTIVA duplicada?  ¿queda cupo?   (base de datos propia)
+   5. guardar → 201</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — El modelo</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/model/EstadoMatricula.java</code></p>
+<pre><code>package co.edu.matriculasservice.model;
+
+public enum EstadoMatricula {
+    ACTIVA,
+    ANULADA
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/model/Matricula.java</code></p>
+<pre><code>package co.edu.matriculasservice.model;
+
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "matricula")
+public class Matricula {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private Long estudianteId;
+
+    @Column(nullable = false)
+    private Long cursoId;
+
+    @Column(nullable = false)
+    private LocalDate fechaMatricula;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoMatricula estado;
+
+    public Matricula() {
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(Long estudianteId) { this.estudianteId = estudianteId; }
+    public Long getCursoId() { return cursoId; }
+    public void setCursoId(Long cursoId) { this.cursoId = cursoId; }
+    public LocalDate getFechaMatricula() { return fechaMatricula; }
+    public void setFechaMatricula(LocalDate fechaMatricula) { this.fechaMatricula = fechaMatricula; }
+    public EstadoMatricula getEstado() { return estado; }
+    public void setEstado(EstadoMatricula estado) { this.estado = estado; }
+}</code></pre>
+  <ul>
+    <li><code>estudianteId</code> y <code>cursoId</code> son números, <strong>no</strong> relaciones <code>@ManyToOne</code>: esas entidades viven en otras bases de datos.</li>
+    <li><code>@Enumerated(EnumType.STRING)</code> guarda <code>"ACTIVA"</code> y no un número de posición, que cambiaría si alguien reordena el <code>enum</code>.</li>
+    <li>Una matrícula no se borra: se <strong>anula</strong>, y así se conserva el historial.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — El contrato con los otros servicios</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/dto/RemoteApiResponse.java</code></p>
+<pre><code>package co.edu.matriculasservice.dto;
+
+/**
+ * Copia local del contrato de respuesta de los otros servicios: {success, message, data}.
+ * Cada microservicio define sus propias clases; no se comparte código entre servicios.
+ */
+public class RemoteApiResponse&lt;T&gt; {
+    private boolean success;
+    private String message;
+    private T data;
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public T getData() { return data; }
+    public void setData(T data) { this.data = data; }
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/client/EstudiantesClient.java</code></p>
+<pre><code>package co.edu.matriculasservice.client;
+
+import co.edu.matriculasservice.dto.EstudianteRemotoDTO;
+import co.edu.matriculasservice.dto.RemoteApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@FeignClient(name = "estudiantesClient", url = "${estudiantes-service.url}")
+public interface EstudiantesClient {
+
+    @GetMapping("/api/estudiantes/{id}")
+    RemoteApiResponse&lt;EstudianteRemotoDTO&gt; buscarPorId(@PathVariable("id") Long id);
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/client/CursosClient.java</code></p>
+<pre><code>package co.edu.matriculasservice.client;
+
+import co.edu.matriculasservice.dto.CursoRemotoDTO;
+import co.edu.matriculasservice.dto.RemoteApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@FeignClient(name = "cursosClient", url = "${cursos-service.url}")
+public interface CursosClient {
+
+    @GetMapping("/api/cursos/{id}")
+    RemoteApiResponse&lt;CursoRemotoDTO&gt; buscarPorId(@PathVariable("id") Long id);
+}</code></pre>
+  <p>Matrículas no importa clases de otros servicios: define su propia copia del contrato JSON con <strong>solo los campos que necesita</strong> (<code>EstudianteRemotoDTO</code>, <code>CursoRemotoDTO</code>). Si estudiantes agrega un campo, matrículas no se rompe.</p>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/config/FeignAuthPropagationConfig.java</code></p>
+<pre><code>package co.edu.matriculasservice.config;
+
+import feign.RequestInterceptor;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+/**
+ * Reenvía el token del usuario en cada llamada Feign saliente.
+ * Así estudiantes-service y cursos-service validan al mismo usuario que llamó a matrículas.
+ */
+@Configuration
+public class FeignAuthPropagationConfig {
+
+    @Bean
+    public RequestInterceptor authTokenPropagationInterceptor() {
+        return requestTemplate -&gt; {
+            // Si la llamada ya trae el header (por ejemplo AuthClient.validate), no se duplica
+            if (requestTemplate.headers().containsKey(HttpHeaders.AUTHORIZATION)) {
+                return;
+            }
+            RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+            if (attributes instanceof ServletRequestAttributes servletAttributes) {
+                HttpServletRequest request = servletAttributes.getRequest();
+                String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+                if (authorization != null &amp;&amp; !authorization.isBlank()) {
+                    requestTemplate.header(HttpHeaders.AUTHORIZATION, authorization);
+                }
+            }
+        };
+    }
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Las reglas de negocio</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/service/MatriculaServiceImpl.java</code></p>
+<pre><code>package co.edu.matriculasservice.service;
+
+import co.edu.matriculasservice.client.CursosClient;
+import co.edu.matriculasservice.client.EstudiantesClient;
+import co.edu.matriculasservice.dto.CursoRemotoDTO;
+import co.edu.matriculasservice.dto.RemoteApiResponse;
+import co.edu.matriculasservice.exception.BusinessException;
+import co.edu.matriculasservice.exception.NotFoundException;
+import co.edu.matriculasservice.exception.RemoteServiceException;
+import co.edu.matriculasservice.model.EstadoMatricula;
+import co.edu.matriculasservice.model.Matricula;
+import co.edu.matriculasservice.repository.MatriculaRepository;
+import feign.FeignException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.function.Supplier;
+
+@Service
+@Transactional
+public class MatriculaServiceImpl implements MatriculaService {
+
+    private final MatriculaRepository repository;
+    private final EstudiantesClient estudiantesClient;
+    private final CursosClient cursosClient;
+
+    public MatriculaServiceImpl(MatriculaRepository repository,
+                                EstudiantesClient estudiantesClient,
+                                CursosClient cursosClient) {
+        this.repository = repository;
+        this.estudiantesClient = estudiantesClient;
+        this.cursosClient = cursosClient;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page&lt;Matricula&gt; listar(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Matricula obtenerPorId(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -&gt; new NotFoundException("Matrícula no encontrada: " + id));
+    }
+
+    @Override
+    public Matricula registrar(Long estudianteId, Long cursoId) {
+        obtenerRemoto("estudiante", () -&gt; estudiantesClient.buscarPorId(estudianteId));
+        CursoRemotoDTO curso = obtenerRemoto("curso", () -&gt; cursosClient.buscarPorId(cursoId));
+
+        if (repository.existsByEstudianteIdAndCursoIdAndEstado(estudianteId, cursoId, EstadoMatricula.ACTIVA)) {
+            throw new BusinessException("Ya existe una matrícula activa para el estudiante y curso indicados");
+        }
+
+        // E2: el cupo viene de cursos-service; las matrículas activas se cuentan en la base propia
+        long activas = repository.countByCursoIdAndEstado(cursoId, EstadoMatricula.ACTIVA);
+        if (curso.getCupoMaximo() != null &amp;&amp; activas &gt;= curso.getCupoMaximo()) {
+            throw new BusinessException("El curso no tiene cupos disponibles (" + activas + "/" + curso.getCupoMaximo() + ")");
+        }
+
+        Matricula matricula = new Matricula();
+        matricula.setEstudianteId(estudianteId);
+        matricula.setCursoId(cursoId);
+        matricula.setFechaMatricula(LocalDate.now());
+        matricula.setEstado(EstadoMatricula.ACTIVA);
+        return repository.save(matricula);
+    }
+
+    @Override
+    public Matricula anular(Long id) {
+        Matricula matricula = obtenerPorId(id);
+        if (matricula.getEstado() == EstadoMatricula.ANULADA) {
+            throw new BusinessException("La matrícula ya se encuentra anulada");
+        }
+        matricula.setEstado(EstadoMatricula.ANULADA);
+        return repository.save(matricula);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarActivas(Long estudianteId, Long cursoId) {
+        // E1: exactamente uno de los dos filtros
+        if ((estudianteId == null) == (cursoId == null)) {
+            throw new BusinessException("Envíe exactamente uno de los parámetros: estudianteId o cursoId");
+        }
+        return estudianteId != null
+                ? repository.countByEstudianteIdAndEstado(estudianteId, EstadoMatricula.ACTIVA)
+                : repository.countByCursoIdAndEstado(cursoId, EstadoMatricula.ACTIVA);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;Matricula&gt; listarPorEstudiante(Long estudianteId) {
+        return repository.findByEstudianteIdOrderByIdDesc(estudianteId);
+    }
+
+    /**
+     * Consulta el recurso remoto y traduce su respuesta (o su error) a excepciones del dominio de matrículas.
+     */
+    private &lt;T&gt; T obtenerRemoto(String recurso, Supplier&lt;RemoteApiResponse&lt;T&gt;&gt; llamada) {
+        try {
+            RemoteApiResponse&lt;T&gt; response = llamada.get();
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                throw new BusinessException("El " + recurso + " indicado no existe");
+            }
+            return response.getData();
+        } catch (FeignException.NotFound ex) {
+            throw new BusinessException("El " + recurso + " indicado no existe");
+        } catch (FeignException.Unauthorized | FeignException.Forbidden ex) {
+            throw new RemoteServiceException("No fue posible validar el " + recurso + ": el servicio remoto rechazó el token");
+        } catch (FeignException ex) {
+            throw new RemoteServiceException("No fue posible consultar el " + recurso + " (código remoto " + ex.status() + ")");
+        }
+    }
+}</code></pre>
+  <p>El método <code>obtenerRemoto</code> traduce lo que responde el otro servicio a errores del dominio de matrículas:</p>
+  <table><thead><tr><th>Respuesta remota</th><th>Significado</th><th>Respuesta de matrículas</th></tr></thead><tbody>
+    <tr><td><code>404</code></td><td>El dato no existe: error del cliente</td><td><code>400</code> "El estudiante indicado no existe"</td></tr>
+    <tr><td><code>401</code> / <code>403</code></td><td>El servicio remoto rechazó el token</td><td><code>502</code></td></tr>
+    <tr><td>Caído o <code>5xx</code></td><td>Falla de infraestructura</td><td><code>502</code></td></tr>
+  </tbody></table>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/controller/GlobalExceptionHandler.java</code></p>
+<pre><code>@ExceptionHandler(RemoteServiceException.class)
+public ResponseEntity&lt;ApiResponse&lt;Object&gt;&gt; handleRemote(RemoteServiceException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+            .body(new ApiResponse&lt;&gt;(false, ex.getMessage(), null));
+}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — Controller y seguridad</h2>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/controller/MatriculaController.java</code></p>
+<pre><code>package co.edu.matriculasservice.controller;
+
+import co.edu.matriculasservice.api.ApiResponse;
+import co.edu.matriculasservice.api.ResponseBuilder;
+import co.edu.matriculasservice.dto.MatriculaCreateDTO;
+import co.edu.matriculasservice.dto.MatriculaDTO;
+import co.edu.matriculasservice.handler.MatriculaHandler;
+import co.edu.matriculasservice.security.UsuarioAutenticado;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/matriculas")
+public class MatriculaController {
+
+    private final MatriculaHandler handler;
+
+    public MatriculaController(MatriculaHandler handler) {
+        this.handler = handler;
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;ApiResponse&lt;MatriculaDTO&gt;&gt; registrar(@Valid @RequestBody MatriculaCreateDTO in) {
+        return ResponseBuilder.created("Matrícula registrada", handler.registrar(in));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;ApiResponse&lt;MatriculaDTO&gt;&gt; obtener(
+            @Parameter(description = "Id de la matrícula", required = true)
+            @PathVariable("id") Long id) {
+        return ResponseBuilder.ok("OK", handler.obtener(id));
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;ApiResponse&lt;Page&lt;MatriculaDTO&gt;&gt;&gt; listar(@ParameterObject Pageable pageable) {
+        return ResponseBuilder.ok("OK", handler.listar(pageable));
+    }
+
+    // E1: lo consultan estudiantes-service y cursos-service antes de eliminar
+    @GetMapping("/activas/conteo")
+    public ResponseEntity&lt;ApiResponse&lt;Long&gt;&gt; contarActivas(
+            @RequestParam(value = "estudianteId", required = false) Long estudianteId,
+            @RequestParam(value = "cursoId", required = false) Long cursoId) {
+        return ResponseBuilder.ok("OK", handler.contarActivas(estudianteId, cursoId));
+    }
+
+    // E4: el estudiante se toma del token, nunca de un parámetro de la petición
+    @GetMapping("/mias")
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;MatriculaDTO&gt;&gt;&gt; misMatriculas(
+            @Parameter(hidden = true) @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        if (usuario == null || usuario.estudianteId() == null) {
+            throw new AccessDeniedException("El usuario no tiene un estudiante asociado");
+        }
+        return ResponseBuilder.ok("OK", handler.listarPorEstudiante(usuario.estudianteId()));
+    }
+
+    @PutMapping("/{id}/anular")
+    public ResponseEntity&lt;ApiResponse&lt;MatriculaDTO&gt;&gt; anular(
+            @Parameter(description = "Id de la matrícula", required = true)
+            @PathVariable("id") Long id) {
+        return ResponseBuilder.ok("Matrícula anulada", handler.anular(id));
+    }
+}</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/java/co/edu/matriculasservice/config/SecurityConfig.java</code></p>
+<pre><code>.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**", "/error").permitAll()
+
+// E4: debe ir ANTES de la regla general; gana la primera regla que coincide
+.requestMatchers(HttpMethod.GET, "/api/matriculas/mias").hasAuthority("ESTUDIANTE")
+.requestMatchers(HttpMethod.GET, "/api/matriculas/**").hasAnyAuthority("ADMIN", "DOCENTE")
+.requestMatchers(HttpMethod.POST, "/api/matriculas/**").hasAuthority("ADMIN")
+.requestMatchers(HttpMethod.PUT, "/api/matriculas/**").hasAuthority("ADMIN")
+
+.anyRequest().authenticated()</code></pre>
+  <p class="file">Archivo: <code>matriculas-service/src/main/resources/application.yaml</code></p>
+<pre><code>server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:matriculasdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+auth-service:
+  url: ${AUTH_SERVICE_URL:http://localhost:8081}
+
+estudiantes-service:
+  url: ${ESTUDIANTES_SERVICE_URL:http://localhost:8082}
+
+cursos-service:
+  url: ${CURSOS_SERVICE_URL:http://localhost:8083}</code></pre>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Swagger: <code>http://localhost:8084/swagger-ui.html</code>. Use el token de <code>admin</code> salvo que se indique otro. Si va a seguir con las guías de extensiones, hágalas sobre datos recién iniciados (reinicie los servicios).</p>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>POST</code> <code>{"estudianteId":1,"cursoId":1}</code></td><td><code>201</code>, estado <code>ACTIVA</code></td></tr>
+    <tr><td>2</td><td>Repetir el paso 1</td><td><code>400</code> "Ya existe una matrícula activa…"</td></tr>
+    <tr><td>3</td><td><code>POST</code> con <code>"estudianteId": 999</code></td><td><code>400</code> "El estudiante indicado no existe"</td></tr>
+    <tr><td>4</td><td><code>POST</code> con <code>"cursoId": 999</code></td><td><code>400</code> "El curso indicado no existe"</td></tr>
+    <tr><td>5</td><td><code>POST</code> con cuerpo <code>{}</code></td><td><code>400</code> "Error de validación"</td></tr>
+    <tr><td>6</td><td><code>PUT /api/matriculas/{id}/anular</code> con el <code>id</code> que devolvió el paso 1</td><td><code>200</code>, estado <code>ANULADA</code></td></tr>
+    <tr><td>7</td><td>Repetir el paso 6</td><td><code>400</code> "La matrícula ya se encuentra anulada"</td></tr>
+    <tr><td>8</td><td>Repetir el paso 1</td><td><code>201</code>: una matrícula anulada no bloquea una nueva</td></tr>
+    <tr><td>9</td><td>DOCENTE: <code>GET /api/matriculas</code> y luego <code>POST</code></td><td><code>200</code> y <code>403</code></td></tr>
+    <tr><td>10</td><td>Detener <code>estudiantes-service</code> y registrar otra matrícula (hacerlo al final)</td><td><code>502</code> "No fue posible consultar el estudiante…"</td></tr>
+  </tbody></table>
+  <p>Pruebas automatizadas: <code>MatriculaServiceImplTest</code> y <code>MatriculaControllerSecurityTest</code> (<code>mvn test</code> en <code>matriculas-service</code>).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>¿Cuántas llamadas HTTP se hacen en total para registrar una matrícula? ¿Cómo afecta eso la latencia y la disponibilidad del sistema?</li>
+    <li>¿Por qué un estudiante inexistente produce <code>400</code> y un servicio caído <code>502</code>? ¿Qué debería hacer el cliente en cada caso?</li>
+    <li>¿Por qué matrículas define <code>EstudianteRemotoDTO</code> en lugar de reutilizar <code>EstudianteDTO</code> de estudiantes-service?</li>
+    <li>Si el token no se propagara (<code>FeignAuthPropagationConfig</code>), ¿qué respuesta recibiría el usuario? Explique la cadena de llamadas que lleva a ese resultado.</li>
+    <li>¿Qué ventaja tiene anular en lugar de borrar? ¿Qué consultas futuras permite?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía General del Proyecto Final</title>
+
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+  </style>
+
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="index.html">← Volver</a>
+    <h1>Guía General del Proyecto Final</h1>
+    <p>El proyecto se entrega terminado. Esta guía explica el caso, qué se debe analizar, en qué orden, qué entregar y cómo se evalúa.</p>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Contenido</h2>
+  <div class="toc">
+    <ol>
+      <li><a href="#proposito">Propósito del proyecto</a></li>
+      <li><a href="#caso">Caso propuesto</a></li>
+      <li><a href="#competencias">Competencias a demostrar</a></li>
+      <li><a href="#alcance">Alcance del sistema</a></li>
+      <li><a href="#arquitectura">Arquitectura del sistema</a></li>
+      <li><a href="#secuencia">Secuencia de análisis</a></li>
+      <li><a href="#extensiones">Extensiones del proyecto</a></li>
+      <li><a href="#roles">Roles y seguridad</a></li>
+      <li><a href="#entregables">Entregables</a></li>
+      <li><a href="#rubrica">Rúbrica</a></li>
+      <li><a href="#checklist">Checklist final</a></li>
+      <li><a href="#errores">Respuestas de error</a></li>
+    </ol>
+  </div>
+</section>
+
+<section class="card" id="proposito">
+  <h2>Propósito del proyecto</h2>
+  <p>El proyecto final consolida los aprendizajes del curso en una sola solución. Se entrega una <strong>plataforma académica terminada</strong>, construida con las mismas técnicas de los laboratorios, y el trabajo del estudiante es <strong>comprenderla a fondo</strong>: explicar cómo se articulan la autenticación, la seguridad, la arquitectura por capas, la comunicación entre servicios, la documentación y el despliegue.</p>
+  <p>Analizar un sistema real es una habilidad central de la ingeniería de software: antes de modificar un sistema hay que entender qué hace, por qué está construido así y qué riesgos tiene.</p>
+  <div class="success"><strong>Flujo de trabajo:</strong> 1) clone el repositorio y ejecute el sistema siguiendo el README, 2) recorra las guías de análisis en el orden de la sección "Secuencia de análisis", 3) ejecute la verificación de cada guía y guarde evidencias, y 4) responda las preguntas de análisis citando el código.</div>
+  <div class="note"><strong>No hay que escribir código.</strong> Cada guía muestra los archivos reales del repositorio. Si propone mejoras, descríbalas y justifíquelas en el informe.</div>
+</section>
+
+<section class="card" id="caso">
+  <h2>Caso propuesto</h2>
+  <p>Una institución académica requiere una plataforma para administrar estudiantes, cursos, matrículas y calificaciones. Para no mezclar toda la lógica en una sola aplicación, la solución se divide en cinco servicios: autenticación, estudiantes, cursos, matrículas y calificaciones. El sistema permite iniciar sesión, obtener un token y consumir operaciones protegidas según el rol del usuario.</p>
+</section>
+
+<section class="card" id="competencias">
+  <h2>Competencias a demostrar</h2>
+  <div class="grid-2">
+    <div><h3>Técnicas</h3><ul>
+      <li>Explicar la organización en controller, handler, service, repository y model.</li>
+      <li>Explicar el flujo de autenticación con BCrypt y JWT y la autorización por roles.</li>
+      <li>Seguir una petición a través de varios servicios comunicados con OpenFeign.</li>
+      <li>Relacionar cada regla de negocio con el código que la implementa.</li>
+      <li>Ejecutar y verificar el sistema con Swagger, Docker Compose y pruebas automatizadas.</li>
+    </ul></div>
+    <div><h3>Formativas</h3><ul>
+      <li>Justificar las decisiones de diseño y compararlas con alternativas.</li>
+      <li>Identificar riesgos y limitaciones (concurrencia, disponibilidad, acoplamiento).</li>
+      <li>Sustentar afirmaciones con evidencias y citas del código.</li>
+      <li>Comunicar los hallazgos de forma clara y ordenada.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="card" id="alcance">
+  <h2>Alcance del sistema</h2>
+  <table><thead><tr><th>Servicio</th><th>Puerto</th><th>Responsabilidad</th><th>Guía</th></tr></thead><tbody>
+    <tr><td><strong>auth-service</strong></td><td>8081</td><td>Login, emisión y validación de JWT, usuarios con rol.</td><td><a href="auth-service.html">Analizar</a></td></tr>
+    <tr><td><strong>estudiantes-service</strong></td><td>8082</td><td>CRUD de estudiantes con correo único.</td><td><a href="estudiantes-service.html">Analizar</a></td></tr>
+    <tr><td><strong>cursos-service</strong></td><td>8083</td><td>CRUD de cursos con código único y cupo máximo.</td><td><a href="cursos-service.html">Analizar</a></td></tr>
+    <tr><td><strong>matriculas-service</strong></td><td>8084</td><td>Registrar, consultar y anular matrículas validando estudiante, curso, duplicado y cupo.</td><td><a href="matriculas-service.html">Analizar</a></td></tr>
+    <tr><td><strong>calificaciones-service</strong></td><td>8085</td><td>Notas por corte y promedio ponderado.</td><td><a href="extension-e3-calificaciones.html">Analizar</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="card" id="arquitectura">
+  <h2>Arquitectura del sistema</h2>
+  <p>Cada microservicio mantiene la estructura trabajada en clase:</p>
+  <pre><code>controller → handler → service → repository → model</code></pre>
+  <p>Y los servicios se relacionan así (todas las flechas llevan el token del usuario):</p>
+  <pre><code>                       ┌──────────────── auth-service (8081) ◄── todos validan el token
+                       │
+estudiantes (8082) ◄───┼──── matriculas (8084) ◄──── calificaciones (8085)
+cursos      (8083) ◄───┘         ▲
+      │                          │
+      └── (E1) conteo de matrículas activas antes de eliminar ──┘</code></pre>
+  <p>Cada servicio tiene su propia base de datos H2 en memoria y expone su propia documentación Swagger.</p>
+</section>
+
+<section class="card" id="secuencia">
+  <h2>Secuencia de análisis</h2>
+  <div class="step"><strong>Paso 1.</strong> Clone el repositorio, compile y ejecute los cinco servicios siguiendo el <code>README.md</code>. Ejecute <code>mvn test</code> en cada uno.</div>
+  <div class="step"><strong>Paso 2.</strong> Lea la <a href="seguridad.html">guía de seguridad</a>: todos los servicios usan las mismas piezas.</div>
+  <div class="step"><strong>Paso 3.</strong> Analice <a href="auth-service.html">auth-service</a>.</div>
+  <div class="step"><strong>Paso 4.</strong> Analice <a href="estudiantes-service.html">estudiantes-service</a>: es la referencia de la arquitectura por capas.</div>
+  <div class="step"><strong>Paso 5.</strong> Analice <a href="cursos-service.html">cursos-service</a> comparándolo con estudiantes.</div>
+  <div class="step"><strong>Paso 6.</strong> Analice <a href="matriculas-service.html">matriculas-service</a>, el servicio integrador.</div>
+  <div class="step"><strong>Paso 7.</strong> Reinicie los servicios y analice las extensiones en orden: <a href="extension-e2-cupos.html">E2</a> → <a href="extension-e1-integridad.html">E1</a> → <a href="extension-e4-mis-matriculas.html">E4</a> → <a href="extension-e3-calificaciones.html">E3</a>.</div>
+  <div class="step"><strong>Paso 8.</strong> Levante el sistema con Docker y complete la <a href="docker-pruebas.html">guía de Docker, Swagger y pruebas</a>.</div>
+  <div class="step"><strong>Paso 9.</strong> Redacte el informe de análisis y prepare la sustentación.</div>
+  <div class="warning"><strong>Datos en memoria:</strong> las bases H2 se reinician con cada servicio. Cada guía indica desde qué datos parte su verificación.</div>
+</section>
+
+<section class="card" id="extensiones">
+  <h2>Extensiones del proyecto</h2>
+  <p>Además del alcance mínimo, el repositorio incluye cuatro extensiones <strong>ya implementadas</strong>. Cada una agrega una idea que no se trabaja en los laboratorios. El trabajo del estudiante es <strong>analizarlas</strong>: recorrer el código con su guía paso a paso, ejecutar la verificación y responder las preguntas de análisis.</p>
+  <table><thead><tr><th>Extensión</th><th>Idea nueva</th><th>Servicios</th><th>Guía</th></tr></thead><tbody>
+    <tr><td><strong>E2</strong> Cupos por curso</td><td>Una regla de negocio que necesita datos de otro servicio</td><td>cursos, matrículas</td><td><a href="extension-e2-cupos.html">Abrir guía</a></td></tr>
+    <tr><td><strong>E1</strong> Integridad entre servicios</td><td>Proteger datos relacionados sin llaves foráneas; dependencia circular</td><td>estudiantes, cursos, matrículas</td><td><a href="extension-e1-integridad.html">Abrir guía</a></td></tr>
+    <tr><td><strong>E4</strong> Mis matrículas</td><td>Autorización por dueño del recurso, con datos propios en el JWT</td><td>auth, matrículas</td><td><a href="extension-e4-mis-matriculas.html">Abrir guía</a></td></tr>
+    <tr><td><strong>E3</strong> calificaciones-service</td><td>Un quinto microservicio completo; el DOCENTE escribe</td><td>calificaciones (nuevo), matrículas</td><td><a href="extension-e3-calificaciones.html">Abrir guía</a></td></tr>
+  </tbody></table>
+  <div class="warning"><strong>Orden recomendado: E2 → E1 → E4 → E3.</strong> Las verificaciones de cada guía continúan con los datos que deja la anterior. Como las bases H2 están en memoria, si reinicia un servicio sus datos se pierden y debe volver a empezar.</div>
+  <h3>Qué debe hacer el estudiante en cada extensión</h3>
+  <ol>
+    <li>Leer la guía con el proyecto abierto en el IDE y ubicar cada archivo que se menciona.</li>
+    <li>Ejecutar la tabla de <strong>Verificación</strong> en Swagger y guardar una evidencia de cada paso.</li>
+    <li>Ejecutar las pruebas automatizadas indicadas (<code>mvn test</code>).</li>
+    <li>Responder por escrito las <strong>Preguntas de análisis</strong>, citando archivos y líneas del código.</li>
+  </ol>
+</section>
+
+<section class="card" id="roles">
+  <h2>Roles y seguridad</h2>
+  <table><thead><tr><th>Rol</th><th>Puede hacer</th><th>No puede hacer</th></tr></thead><tbody>
+    <tr><td>ADMIN</td><td>Gestionar estudiantes, cursos y matrículas; registrar y corregir calificaciones.</td><td>Consultar <code>/mias</code> (no tiene estudiante asociado).</td></tr>
+    <tr><td>DOCENTE</td><td>Consultar estudiantes, cursos y matrículas; registrar y corregir calificaciones.</td><td>Modificar estudiantes, cursos o matrículas.</td></tr>
+    <tr><td>ESTUDIANTE</td><td>Consultar cursos, sus propias matrículas y sus propias notas.</td><td>Ver datos de otros estudiantes o modificar información.</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Apoyo:</strong> la <a href="seguridad.html">guía de seguridad</a> recorre el código que valida el token, carga el rol y aplica las restricciones por endpoint.</div>
+</section>
+
+<section class="card" id="entregables">
+  <h2>Entregables</h2>
+  <ul>
+    <li><strong>Informe de análisis</strong> con una sección por guía (seguridad, cuatro módulos, cuatro extensiones y Docker). Cada sección incluye:
+      <ul>
+        <li>las evidencias de la tabla de verificación (petición y respuesta);</li>
+        <li>las respuestas a las preguntas de análisis, citando archivos y métodos del código.</li>
+      </ul>
+    </li>
+    <li><strong>Diagrama propio</strong> de la arquitectura: servicios, dependencias y flujo del token.</li>
+    <li><strong>Resultado de <code>mvn test</code></strong> en los cinco servicios y captura de <code>docker compose ps</code>.</li>
+    <li><strong>Una propuesta de mejora</strong> justificada (por ejemplo, un riesgo detectado y cómo se resolvería), sin necesidad de implementarla.</li>
+  </ul>
+</section>
+
+<section class="card" id="rubrica">
+  <h2>Rúbrica</h2>
+  <table><thead><tr><th>Criterio</th><th>Qué se evalúa</th><th>Peso</th></tr></thead><tbody>
+    <tr><td>Comprensión de la arquitectura por capas</td><td>Explica la responsabilidad de cada capa y sigue una petición de punta a punta.</td><td>20%</td></tr>
+    <tr><td>Análisis de la seguridad (JWT y roles)</td><td>Explica emisión y validación del token, 401 frente a 403, reglas por rol y autorización por dueño (E4).</td><td>20%</td></tr>
+    <tr><td>Análisis de las reglas de negocio</td><td>Relaciona cada regla con su código y explica sus casos límite (E2, E3).</td><td>20%</td></tr>
+    <tr><td>Análisis de la integración entre servicios</td><td>Explica OpenFeign, la propagación del token, la traducción de errores remotos y las dependencias (E1).</td><td>15%</td></tr>
+    <tr><td>Verificación y evidencias</td><td>Evidencias completas y claras de las verificaciones y de las pruebas automatizadas.</td><td>15%</td></tr>
+    <tr><td>Docker, propuesta de mejora y calidad del informe</td><td>Ejecución con Docker, mejora bien justificada, redacción y orden.</td><td>10%</td></tr>
+  </tbody></table>
+  <div class="note">Se valoran las respuestas que se apoyan en el código y en las evidencias, no solo en la teoría. En la sustentación se pueden hacer preguntas sobre cualquier archivo del repositorio.</div>
+</section>
+
+<section class="card" id="checklist">
+  <h2>Checklist final</h2>
+  <ul>
+    <li>El sistema se ejecutó en local y con Docker Compose.</li>
+    <li><code>mvn test</code> pasa en los cinco servicios (27 pruebas).</li>
+    <li>Se completó la verificación de las diez guías, con evidencias.</li>
+    <li>Se respondieron todas las preguntas de análisis, citando el código.</li>
+    <li>El informe incluye un diagrama propio de la arquitectura.</li>
+    <li>El informe incluye una propuesta de mejora justificada.</li>
+  </ul>
+</section>
+
+<section class="card" id="errores">
+  <h2>Respuestas de error de negocio</h2>
+  <p>Además de los errores de seguridad, los servicios responden con <code>{"success": false, "message": ..., "data": ...}</code> y el código HTTP correspondiente:</p>
+  <table><thead><tr><th>Código</th><th>Cuándo</th></tr></thead><tbody>
+    <tr><td><code>400</code></td><td>Datos inválidos (validación), JSON mal formado, parámetro con tipo incorrecto o regla de negocio incumplida (duplicados, matrícula ya anulada).</td></tr>
+    <tr><td><code>404</code></td><td>El recurso o la ruta no existen.</td></tr>
+    <tr><td><code>405</code></td><td>Método HTTP no permitido en esa ruta.</td></tr>
+    <tr><td><code>409</code></td><td>Conflicto con los datos almacenados.</td></tr>
+    <tr><td><code>502</code></td><td>Un servicio del que depende la operación no respondió correctamente.</td></tr>
+  </tbody></table>
+  <div class="note">Un <code>401</code> siempre significa un problema con el token. Si recibe un <code>401</code> con un token válido, revise que la ruta <code>/error</code> esté permitida en <code>SecurityConfig</code>.</div>
+</section>
+
+<section class="card">
+  <h2>Respuestas de seguridad uniformes</h2>
+  <p>Los servicios protegidos ahora responden con una estructura JSON uniforme cuando ocurre un error de autenticación o autorización. Esto mejora la trazabilidad, facilita las pruebas en Swagger y permite que el cliente identifique con claridad si el problema fue un token ausente, un token inválido o un rol insuficiente.</p>
+  <pre><code>{
+  "success": false,
+  "message": "Debe enviar un token Bearer válido",
+  "errorCode": "AUTH_HEADER_MISSING",
+  "status": 401,
+  "path": "/api/recurso",
+  "timestamp": "2026-04-11T15:30:00"
+}</code></pre>
+  <ul>
+    <li><code>AUTH_HEADER_MISSING</code>: no se envió el encabezado Bearer.</li>
+    <li><code>TOKEN_INVALID</code>: el token no es válido o no contiene rol.</li>
+    <li><code>TOKEN_VALIDATION_ERROR</code>: no fue posible validar el token contra auth-service.</li>
+    <li><code>AUTH_FORBIDDEN</code>: el usuario está autenticado, pero no tiene el rol necesario.</li>
+  </ul>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado</div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de análisis · Docker, Swagger y pruebas</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="index.html">← Volver al portal</a>
+    <h1>Guía de análisis · Docker, Swagger y pruebas</h1>
+    <p>Cómo se empaqueta, se orquesta y se verifica la plataforma completa</p>
+    <div class="nav"><a href="seguridad.html">Seguridad</a><a href="auth-service.html">auth</a><a href="estudiantes-service.html">estudiantes</a><a href="cursos-service.html">cursos</a><a href="matriculas-service.html">matrículas</a><a href="docker-pruebas.html" class="actual">Docker y pruebas</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Propósito</h2>
+  <p>Un sistema no está completo solo porque funciona dentro del IDE. Esta guía analiza cómo el proyecto se empaqueta en contenedores, cómo Docker Compose levanta los cinco servicios juntos y cómo se verifica el sistema completo con Swagger y con las pruebas automatizadas.</p>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Lea cada archivo, levante el sistema con Docker, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — El Dockerfile de un servicio</h2>
+  <p>Los cinco servicios usan el mismo Dockerfile; solo cambia el puerto de <code>EXPOSE</code>:</p>
+  <p class="file">Archivo: <code>cursos-service/Dockerfile</code></p>
+<pre><code>FROM eclipse-temurin:21-jre
+WORKDIR /app
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+EXPOSE 8083
+ENTRYPOINT ["java","-jar","/app/app.jar"]</code></pre>
+  <table><thead><tr><th>Línea</th><th>Qué hace</th></tr></thead><tbody>
+    <tr><td><code>FROM eclipse-temurin:21-jre</code></td><td>Parte de una imagen que solo trae el entorno de ejecución de Java 21 (sin compilador).</td></tr>
+    <tr><td><code>WORKDIR /app</code></td><td>Carpeta de trabajo dentro del contenedor.</td></tr>
+    <tr><td><code>ARG JAR_FILE=target/*.jar</code> y <code>COPY</code></td><td>Copia el .jar que Maven dejó en <code>target/</code>, sin importar su nombre exacto. Por eso hay que compilar antes de construir la imagen.</td></tr>
+    <tr><td><code>EXPOSE 8083</code></td><td>Documenta el puerto en el que escucha el servicio.</td></tr>
+    <tr><td><code>ENTRYPOINT</code></td><td>El comando que se ejecuta al iniciar el contenedor.</td></tr>
+  </tbody></table>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — La orquestación con Docker Compose</h2>
+  <p class="file">Archivo: <code>docker-compose.yml</code></p>
+<pre><code>services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+
+  estudiantes-service:
+    build: ./estudiantes-service
+    container_name: estudiantes-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+    ports:
+      - "8082:8082"
+
+  cursos-service:
+    build: ./cursos-service
+    container_name: cursos-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+    ports:
+      - "8083:8083"
+
+  matriculas-service:
+    build: ./matriculas-service
+    container_name: matriculas-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      ESTUDIANTES_SERVICE_URL: http://estudiantes-service:8082
+      CURSOS_SERVICE_URL: http://cursos-service:8083
+    depends_on:
+      - auth-service
+      - estudiantes-service
+      - cursos-service
+    ports:
+      - "8084:8084"
+
+  calificaciones-service:
+    build: ./calificaciones-service
+    container_name: calificaciones-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+    depends_on:
+      - auth-service
+      - matriculas-service
+    ports:
+      - "8085:8085"</code></pre>
+  <ul>
+    <li><strong>Nombres de servicio como direcciones:</strong> dentro de la red de Compose, <code>http://auth-service:8081</code> llega al contenedor de auth. <code>localhost</code> dentro de un contenedor es el propio contenedor.</li>
+    <li><strong>Variables de entorno:</strong> reemplazan los valores por defecto de <code>application.yaml</code> (por ejemplo, <code>${AUTH_SERVICE_URL:http://localhost:8081}</code>). El mismo código funciona en local y en Docker.</li>
+    <li><strong><code>depends_on</code>:</strong> define el orden de arranque, pero no espera a que el otro servicio esté listo para responder.</li>
+    <li><strong>Sin ciclos:</strong> estudiantes y cursos llaman a matrículas (<a href="extension-e1-integridad.html">E1</a>), pero no declaran <code>depends_on</code> hacia ella porque matrículas ya depende de ellos y Compose no acepta ciclos.</li>
+    <li><strong><code>ports</code>:</strong> <code>"8083:8083"</code> publica el puerto del contenedor en el equipo, para usar Swagger desde el navegador.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Levantar el sistema</h2>
+  <pre><code>cd auth-service && mvn clean package -DskipTests && cd ..
+cd estudiantes-service && mvn clean package -DskipTests && cd ..
+cd cursos-service && mvn clean package -DskipTests && cd ..
+cd matriculas-service && mvn clean package -DskipTests && cd ..
+cd calificaciones-service && mvn clean package -DskipTests && cd ..
+docker compose up --build</code></pre>
+  <div class="warning"><strong>Primer arranque:</strong> la primera petición que cruza varios servicios puede tardar varios segundos (arranque en frío de Feign y Hibernate). Si recibe un <code>502</code> apenas levantó el sistema, espere unos segundos y repita.</div>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — Las pruebas automatizadas</h2>
+  <p>Cada servicio tiene pruebas en <code>src/test/java</code>. Ejecútelas con <code>mvn test</code> dentro de cada carpeta:</p>
+  <table><thead><tr><th>Servicio</th><th>Clases de prueba</th><th>Casos</th><th>Tipo</th></tr></thead><tbody>
+    <tr><td>auth-service</td><td><code>JwtUtilsTest</code>, <code>AuthFlowIntegrationTest</code></td><td>4</td><td>Unitaria e integración (<code>@SpringBootTest</code>)</td></tr>
+    <tr><td>estudiantes-service</td><td><code>EstudianteServiceImplTest</code></td><td>3</td><td>Unitaria con Mockito</td></tr>
+    <tr><td>cursos-service</td><td><code>CursoServiceImplTest</code></td><td>4</td><td>Unitaria con Mockito</td></tr>
+    <tr><td>matriculas-service</td><td><code>MatriculaServiceImplTest</code>, <code>MatriculaControllerSecurityTest</code></td><td>8</td><td>Unitaria y web con seguridad (<code>@WebMvcTest</code>)</td></tr>
+    <tr><td>calificaciones-service</td><td><code>CalificacionServiceImplTest</code></td><td>8</td><td>Unitaria con Mockito</td></tr>
+    <tr><th colspan="2">Total</th><th>27</th><th></th></tr>
+  </tbody></table>
+  <p>Ninguna prueba necesita otros servicios en ejecución: las llamadas remotas se reemplazan por <em>mocks</em>. Los reportes quedan en <code>target/surefire-reports/</code>.</p>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <table><thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td><code>docker compose ps</code></td><td>Cinco servicios en estado <em>running</em></td></tr>
+    <tr><td>2</td><td>Abrir <code>http://localhost:808X/swagger-ui.html</code> para X = 1…5</td><td>Swagger de cada servicio</td></tr>
+    <tr><td>3</td><td>Login como <code>admin</code> (8081) y <code>POST /api/matriculas</code> (8084) con <code>{"estudianteId":1,"cursoId":1}</code></td><td><code>201</code>: los servicios se comunican por la red de Docker</td></tr>
+    <tr><td>4</td><td><code>docker compose logs matriculas-service</code></td><td>Los registros de arranque y de la petición</td></tr>
+    <tr><td>5</td><td><code>docker compose restart matriculas-service</code> y <code>GET /api/matriculas</code></td><td>Lista vacía: H2 en memoria pierde los datos al reiniciar</td></tr>
+    <tr><td>6</td><td><code>mvn test</code> en los cinco servicios</td><td>27 pruebas, 0 fallos</td></tr>
+    <tr><td>7</td><td><code>docker compose down</code></td><td>Los contenedores se detienen y se eliminan</td></tr>
+  </tbody></table>
+</section>
+
+<section class="card">
+  <h2>Evidencias para el informe</h2>
+  <ul>
+    <li>Captura de <code>docker compose ps</code> con los cinco servicios.</li>
+    <li>Captura del Swagger de cada servicio.</li>
+    <li>Capturas de las verificaciones de cada guía de módulo y de extensión, mostrando la petición y la respuesta.</li>
+    <li>Resultado de <code>mvn test</code> en cada servicio.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>¿Por qué dentro de Docker se usa <code>http://auth-service:8081</code> y no <code>http://localhost:8081</code>?</li>
+    <li><code>depends_on</code> no espera a que un servicio esté listo. ¿Qué problema puede causar y cómo se resolvería (por ejemplo, con <code>healthcheck</code>)?</li>
+    <li>Explique el resultado de la verificación 5. ¿Qué cambiaría para que los datos sobrevivan a un reinicio?</li>
+    <li>El Dockerfile copia un .jar ya compilado. ¿Qué ventajas tendría compilar dentro de Docker (Dockerfile <em>multi-stage</em>)?</li>
+    <li>Las 27 pruebas se ejecutan sin levantar ningún servicio. ¿Qué tipo de errores detectan y cuáles no pueden detectar?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>

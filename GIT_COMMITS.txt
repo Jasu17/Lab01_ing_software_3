@@ -1,0 +1,6 @@
+feat(auth): implement JWT generation and BCrypt validation
+feat(estudiantes): add CRUD endpoints with unique email constraint
+feat(cursos): implement capacity control logic E2
+feat(matriculas): add feign auth propagation and remote active count
+feat(calificaciones): implement weighted average calculation and cortes validation
+docs: add README, architecture diagrams and deployment instructions

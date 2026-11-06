@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E3 · calificaciones-service</title>
+  <style>
+    :root{
+      --blue:#1f3c88;--blue-dark:#142a61;--soft:#edf3ff;--soft-2:#f8fbff;--border:#dbe4f3;
+      --bg:#f5f7fb;--text:#1f2937;--muted:#4b5563;--white:#fff;--shadow:0 10px 28px rgba(31,60,136,.08);
+      --radius:18px;--code:#eef2f7;--ok:#0f766e;--warn:#b45309;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{width:min(1180px,calc(100% - 32px));margin:0 auto}
+    header.hero{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;padding:44px 0 30px;box-shadow:var(--shadow)}
+    .back{display:inline-block;color:#dbe7ff;text-decoration:none;font-weight:bold;margin-bottom:16px}
+    h1{margin:0 0 12px;font-size:clamp(1.9rem,4vw,3rem);line-height:1.15}
+    header.hero p{margin:0;max-width:980px;color:#edf2ff}
+    main{padding:28px 0 52px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    h2,h3,h4{color:var(--blue);margin-top:0}
+    h2{font-size:1.65rem;border-bottom:3px solid var(--soft);padding-bottom:10px;margin-bottom:18px}
+    h3{font-size:1.2rem;margin-top:24px;margin-bottom:10px}
+    h4{font-size:1.02rem;margin-top:18px;margin-bottom:8px}
+    p{margin:0 0 14px}
+    ul,ol{padding-left:22px}
+    li{margin-bottom:8px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .toc{background:var(--soft-2);border:1px solid var(--border);border-radius:16px;padding:20px}
+    .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px}
+    .toc li{margin-bottom:8px}
+    .toc a,.link-card a{color:var(--blue);text-decoration:none;font-weight:700}
+    .link-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:18px;height:100%}
+    .step{border-left:5px solid var(--blue);background:#fbfdff;padding:16px 18px;border-radius:12px;margin:12px 0}
+    .note,.success,.warning{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid transparent}
+    .note{background:#eff6ff;border-color:#bfdbfe}.success{background:#ecfdf5;border-color:#a7f3d0}.warning{background:#fff7ed;border-color:#fdba74}
+    pre{background:var(--code);color:#111827;border:1px solid #d8e0ea;border-radius:14px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;margin:14px 0 18px}
+    code{font-family:Consolas,Monaco,'Courier New',monospace}
+    table{width:100%;border-collapse:collapse;margin:14px 0 18px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:12px;text-align:left;vertical-align:top} th{background:var(--soft);color:var(--blue)}
+    .pill{display:inline-block;background:var(--soft);color:var(--blue);border:1px solid #cdd9fb;padding:6px 12px;border-radius:999px;font-size:.92rem;margin:4px 8px 4px 0;font-weight:700}
+    .footer{text-align:center;color:var(--muted);padding:10px 0 0;font-size:.95rem}
+    .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
+    .btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--border)}
+    @media (max-width: 920px){.grid-2,.grid-3{grid-template-columns:1fr}.toc ol{columns:1}}
+      .file{margin:18px 0 4px;font-weight:700;color:var(--muted)}
+    .file code{background:var(--code);padding:2px 6px;border-radius:6px}
+    .nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .nav a{color:#dbe7ff;text-decoration:none;font-weight:bold;border:1px solid #6d86c9;border-radius:999px;padding:4px 12px}
+    .nav a.actual{background:#fff;color:var(--blue)}
+  </style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <a class="back" href="proyecto-final-guiado.html#extensiones">← Volver a la guía general</a>
+    <h1>E3 · calificaciones-service</h1>
+    <p>Guía de análisis: un quinto microservicio de punta a punta</p>
+    <div class="nav"><a href="extension-e2-cupos.html">E2 Cupos</a><a href="extension-e1-integridad.html">E1 Integridad</a><a href="extension-e4-mis-matriculas.html">E4 Mis matrículas</a><a href="extension-e3-calificaciones.html" class="actual">E3 Calificaciones</a></div>
+  </div>
+</header>
+<main>
+  <div class="container">
+
+<section class="card">
+  <h2>Qué resuelve esta extensión</h2>
+  <p><code>calificaciones-service</code> (puerto <code>8085</code>) registra las notas de cada matrícula por corte y calcula el promedio ponderado. Reúne todo lo del curso en un solo servicio nuevo: arquitectura por capas, validaciones, JWT, roles, OpenFeign, Swagger y Docker.</p>
+  <p>Trae dos ideas nuevas: por primera vez un rol distinto de ADMIN (el <strong>DOCENTE</strong>) puede escribir, y el servicio registra <strong>quién</strong> hizo cada cambio a partir del token.</p>
+  <table><thead><tr><th>Endpoint</th><th>Método</th><th>Rol</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>/api/calificaciones</code></td><td>POST</td><td>ADMIN, DOCENTE</td><td>Registra <code>{"matriculaId", "corte", "nota"}</code></td></tr>
+    <tr><td><code>/api/calificaciones/{id}</code></td><td>PUT</td><td>ADMIN, DOCENTE</td><td>Corrige una nota</td></tr>
+    <tr><td><code>/api/calificaciones/matricula/{matriculaId}</code></td><td>GET</td><td>ADMIN, DOCENTE</td><td>Notas de la matrícula y promedio ponderado</td></tr>
+    <tr><td><code>/api/calificaciones/mias</code></td><td>GET</td><td>ESTUDIANTE</td><td>Notas de sus propias matrículas</td></tr>
+  </tbody></table>
+  <div class="note"><strong>Cómo usar esta guía:</strong> el código ya está en el repositorio. Recorra los pasos con el proyecto abierto, ejecute la verificación y responda las preguntas de análisis. <strong>No hay que escribir código.</strong></div>
+</section>
+
+<section class="card">
+  <h2>Estructura del servicio</h2>
+  <pre><code>calificaciones-service/src/main/java/co/edu/calificacionesservice
+├── CalificacionesServiceApplication.java
+├── api          → ApiResponse, ApiErrorResponse, ResponseBuilder          (igual que los demás)
+├── client       → AuthClient, MatriculasClient
+├── config       → SecurityConfig, OpenApiConfig, FeignAuthPropagationConfig
+├── controller   → CalificacionController, GlobalExceptionHandler
+├── dto          → CalificacionCreateDTO, CalificacionUpdateDTO, CalificacionDTO,
+│                  ResumenCalificacionesDTO, MatriculaRemotaDTO, RemoteApiResponse, TokenValidationResponse
+├── exception    → BusinessException, NotFoundException, RemoteServiceException
+├── handler      → CalificacionHandler
+├── model        → Calificacion, ResumenCalificaciones
+├── repository   → CalificacionRepository
+├── security     → AuthValidationFilter, CustomAuthenticationEntryPoint, CustomAccessDeniedHandler, …
+└── service      → CalificacionService, CalificacionServiceImpl</code></pre>
+  <p>Las carpetas <code>api</code>, <code>security</code> y <code>exception</code>, y la configuración de Swagger, son las mismas de los otros servicios con otro paquete. El análisis se concentra en lo propio del dominio.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 1 — Configuración e integración en el sistema</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/resources/application.yaml</code></p>
+<pre><code>server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:calificacionesdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+auth-service:
+  url: ${AUTH_SERVICE_URL:http://localhost:8081}
+
+matriculas-service:
+  url: ${MATRICULAS_SERVICE_URL:http://localhost:8084}</code></pre>
+  <p class="file">Archivo: <code>docker-compose.yml</code></p>
+<pre><code>calificaciones-service:
+  build: ./calificaciones-service
+  container_name: calificaciones-service
+  environment:
+    AUTH_SERVICE_URL: http://auth-service:8081
+    MATRICULAS_SERVICE_URL: http://matriculas-service:8084
+  depends_on:
+    - auth-service
+    - matriculas-service
+  ports:
+    - "8085:8085"</code></pre>
+  <p>Calificaciones depende de <code>auth-service</code> (validar el token) y de <code>matriculas-service</code> (verificar la matrícula). No consulta directamente a estudiantes ni a cursos.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 2 — El modelo</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/model/Calificacion.java</code></p>
+<pre><code>package co.edu.calificacionesservice.model;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "calificacion", uniqueConstraints = {
+        // Respaldo en base de datos de la regla "una nota por corte y matrícula"
+        @UniqueConstraint(name = "uk_calificacion_matricula_corte", columnNames = {"matricula_id", "corte"})
+})
+public class Calificacion {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "matricula_id", nullable = false)
+    private Long matriculaId;
+
+    @Column(nullable = false)
+    private Integer corte;
+
+    @Column(nullable = false, precision = 2, scale = 1)
+    private BigDecimal nota;
+
+    @Column(nullable = false, length = 80)
+    private String registradoPor;
+
+    @Column(nullable = false)
+    private LocalDateTime fechaRegistro;
+
+    public Calificacion() {
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getMatriculaId() { return matriculaId; }
+    public void setMatriculaId(Long matriculaId) { this.matriculaId = matriculaId; }
+    public Integer getCorte() { return corte; }
+    public void setCorte(Integer corte) { this.corte = corte; }
+    public BigDecimal getNota() { return nota; }
+    public void setNota(BigDecimal nota) { this.nota = nota; }
+    public String getRegistradoPor() { return registradoPor; }
+    public void setRegistradoPor(String registradoPor) { this.registradoPor = registradoPor; }
+    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
+    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+}</code></pre>
+  <ul>
+    <li><strong><code>BigDecimal</code> con precisión 2 y escala 1:</strong> guarda exactamente valores como 4.5. Con <code>double</code>, operaciones como 0.1 + 0.2 no dan un resultado exacto.</li>
+    <li><strong><code>@UniqueConstraint</code>:</strong> la base de datos garantiza una sola nota por corte y matrícula, aunque dos peticiones lleguen al mismo tiempo. Usa el nombre físico de la columna (<code>matricula_id</code>).</li>
+    <li><strong><code>registradoPor</code> y <code>fechaRegistro</code>:</strong> dejan rastro de quién hizo el último cambio.</li>
+  </ul>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/model/ResumenCalificaciones.java</code></p>
+<pre><code>package co.edu.calificacionesservice.model;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Notas de una matrícula con su promedio ponderado. No es una entidad: se calcula en cada consulta.
+ */
+public record ResumenCalificaciones(Long matriculaId, List&lt;Calificacion&gt; calificaciones, BigDecimal promedioPonderado) {
+
+    public boolean completa() {
+        return calificaciones.size() == 3;
+    }
+}</code></pre>
+  <p><code>ResumenCalificaciones</code> no es una entidad: es un <code>record</code> que se calcula en cada consulta y no se guarda.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 3 — Validación de entrada</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/dto/CalificacionCreateDTO.java</code></p>
+<pre><code>package co.edu.calificacionesservice.dto;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
+
+public class CalificacionCreateDTO {
+
+    @NotNull(message = "La matrícula es obligatoria")
+    private Long matriculaId;
+
+    @NotNull(message = "El corte es obligatorio")
+    @Min(value = 1, message = "El corte debe ser 1, 2 o 3")
+    @Max(value = 3, message = "El corte debe ser 1, 2 o 3")
+    private Integer corte;
+
+    @NotNull(message = "La nota es obligatoria")
+    @DecimalMin(value = "0.0", message = "La nota mínima es 0.0")
+    @DecimalMax(value = "5.0", message = "La nota máxima es 5.0")
+    @Digits(integer = 1, fraction = 1, message = "La nota admite un solo decimal")
+    private BigDecimal nota;
+
+    public Long getMatriculaId() { return matriculaId; }
+    public void setMatriculaId(Long matriculaId) { this.matriculaId = matriculaId; }
+    public Integer getCorte() { return corte; }
+    public void setCorte(Integer corte) { this.corte = corte; }
+    public BigDecimal getNota() { return nota; }
+    public void setNota(BigDecimal nota) { this.nota = nota; }
+}</code></pre>
+  <p><code>@Digits(integer = 1, fraction = 1)</code> rechaza valores como <code>4.55</code>. <code>CalificacionUpdateDTO</code> solo contiene <code>nota</code>, con las mismas reglas: al corregir no se puede cambiar de matrícula ni de corte.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 4 — La relación con matrículas</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/client/MatriculasClient.java</code></p>
+<pre><code>package co.edu.calificacionesservice.client;
+
+import co.edu.calificacionesservice.dto.MatriculaRemotaDTO;
+import co.edu.calificacionesservice.dto.RemoteApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
+@FeignClient(name = "matriculasClient", url = "${matriculas-service.url}")
+public interface MatriculasClient {
+
+    @GetMapping("/api/matriculas/{id}")
+    RemoteApiResponse&lt;MatriculaRemotaDTO&gt; buscarPorId(@PathVariable("id") Long id);
+
+    // Reto E4 + E3: con el token del ESTUDIANTE solo se puede usar este endpoint de matrículas
+    @GetMapping("/api/matriculas/mias")
+    RemoteApiResponse&lt;List&lt;MatriculaRemotaDTO&gt;&gt; misMatriculas();
+}</code></pre>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/dto/MatriculaRemotaDTO.java</code></p>
+<pre><code>package co.edu.calificacionesservice.dto;
+
+public class MatriculaRemotaDTO {
+    private Long id;
+    private Long estudianteId;
+    private Long cursoId;
+    private String estado;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getEstudianteId() { return estudianteId; }
+    public void setEstudianteId(Long estudianteId) { this.estudianteId = estudianteId; }
+    public Long getCursoId() { return cursoId; }
+    public void setCursoId(Long cursoId) { this.cursoId = cursoId; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+}</code></pre>
+  <p><code>MatriculaRemotaDTO</code> toma solo los campos que necesita (id, estudiante, curso y estado). El estado llega como texto: calificaciones no conoce el <code>enum</code> de matrículas.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 5 — Las reglas de negocio</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/service/CalificacionServiceImpl.java</code></p>
+<pre><code>package co.edu.calificacionesservice.service;
+
+import co.edu.calificacionesservice.client.MatriculasClient;
+import co.edu.calificacionesservice.dto.MatriculaRemotaDTO;
+import co.edu.calificacionesservice.dto.RemoteApiResponse;
+import co.edu.calificacionesservice.exception.BusinessException;
+import co.edu.calificacionesservice.exception.NotFoundException;
+import co.edu.calificacionesservice.exception.RemoteServiceException;
+import co.edu.calificacionesservice.model.Calificacion;
+import co.edu.calificacionesservice.model.ResumenCalificaciones;
+import co.edu.calificacionesservice.repository.CalificacionRepository;
+import feign.FeignException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class CalificacionServiceImpl implements CalificacionService {
+
+    /** Peso de cada corte en la nota final. */
+    static final Map&lt;Integer, BigDecimal&gt; PESOS = Map.of(
+            1, new BigDecimal("0.30"),
+            2, new BigDecimal("0.30"),
+            3, new BigDecimal("0.40"));
+
+    private final CalificacionRepository repository;
+    private final MatriculasClient matriculasClient;
+
+    public CalificacionServiceImpl(CalificacionRepository repository, MatriculasClient matriculasClient) {
+        this.repository = repository;
+        this.matriculasClient = matriculasClient;
+    }
+
+    @Override
+    public Calificacion registrar(Long matriculaId, Integer corte, BigDecimal nota, String usuario) {
+        verificarMatriculaActiva(matriculaId);
+        if (repository.existsByMatriculaIdAndCorte(matriculaId, corte)) {
+            throw new BusinessException("Ya existe una nota para el corte " + corte + " de esta matrícula; use PUT para corregirla");
+        }
+        Calificacion calificacion = new Calificacion();
+        calificacion.setMatriculaId(matriculaId);
+        calificacion.setCorte(corte);
+        calificacion.setNota(nota);
+        calificacion.setRegistradoPor(usuario);
+        calificacion.setFechaRegistro(LocalDateTime.now());
+        return repository.save(calificacion);
+    }
+
+    @Override
+    public Calificacion actualizar(Long id, BigDecimal nota, String usuario) {
+        Calificacion calificacion = repository.findById(id)
+                .orElseThrow(() -&gt; new NotFoundException("Calificación no encontrada: " + id));
+        verificarMatriculaActiva(calificacion.getMatriculaId());
+        calificacion.setNota(nota);
+        calificacion.setRegistradoPor(usuario);
+        calificacion.setFechaRegistro(LocalDateTime.now());
+        return repository.save(calificacion);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResumenCalificaciones resumen(Long matriculaId) {
+        obtenerMatricula(matriculaId);
+        return resumenLocal(matriculaId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;ResumenCalificaciones&gt; misCalificaciones() {
+        // El token del ESTUDIANTE se propaga: matriculas-service decide cuáles son sus matrículas
+        List&lt;MatriculaRemotaDTO&gt; matriculas;
+        try {
+            RemoteApiResponse&lt;List&lt;MatriculaRemotaDTO&gt;&gt; response = matriculasClient.misMatriculas();
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                throw new RemoteServiceException("matriculas-service no devolvió las matrículas del estudiante");
+            }
+            matriculas = response.getData();
+        } catch (FeignException ex) {
+            throw new RemoteServiceException("No fue posible consultar las matrículas del estudiante (código remoto " + ex.status() + ")");
+        }
+        return matriculas.stream().map(m -&gt; resumenLocal(m.getId())).toList();
+    }
+
+    /**
+     * Promedio ponderado sobre los cortes registrados: se divide por la suma de sus pesos.
+     * Con los tres cortes, es la nota definitiva.
+     */
+    static BigDecimal calcularPromedio(List&lt;Calificacion&gt; calificaciones) {
+        if (calificaciones.isEmpty()) {
+            return null;
+        }
+        BigDecimal suma = BigDecimal.ZERO;
+        BigDecimal pesos = BigDecimal.ZERO;
+        for (Calificacion c : calificaciones) {
+            BigDecimal peso = PESOS.get(c.getCorte());
+            suma = suma.add(c.getNota().multiply(peso));
+            pesos = pesos.add(peso);
+        }
+        return suma.divide(pesos, 2, RoundingMode.HALF_UP);
+    }
+
+    private ResumenCalificaciones resumenLocal(Long matriculaId) {
+        List&lt;Calificacion&gt; calificaciones = repository.findByMatriculaIdOrderByCorteAsc(matriculaId);
+        return new ResumenCalificaciones(matriculaId, calificaciones, calcularPromedio(calificaciones));
+    }
+
+    private void verificarMatriculaActiva(Long matriculaId) {
+        MatriculaRemotaDTO matricula;
+        try {
+            matricula = obtenerMatricula(matriculaId);
+        } catch (NotFoundException ex) {
+            // En el cuerpo de un POST/PUT, una referencia inexistente es un error de datos (400), como en matrículas
+            throw new BusinessException("La matrícula indicada no existe");
+        }
+        if (!"ACTIVA".equals(matricula.getEstado())) {
+            throw new BusinessException("La matrícula " + matriculaId + " no está activa");
+        }
+    }
+
+    private MatriculaRemotaDTO obtenerMatricula(Long matriculaId) {
+        try {
+            RemoteApiResponse&lt;MatriculaRemotaDTO&gt; response = matriculasClient.buscarPorId(matriculaId);
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                throw new NotFoundException("La matrícula " + matriculaId + " no existe");
+            }
+            return response.getData();
+        } catch (FeignException.NotFound ex) {
+            throw new NotFoundException("La matrícula " + matriculaId + " no existe");
+        } catch (FeignException.Unauthorized | FeignException.Forbidden ex) {
+            throw new RemoteServiceException("matriculas-service rechazó el token al consultar la matrícula");
+        } catch (FeignException ex) {
+            throw new RemoteServiceException("No fue posible consultar la matrícula (código remoto " + ex.status() + ")");
+        }
+    }
+}</code></pre>
+  <p>Puntos para observar:</p>
+  <ol>
+    <li><strong>Registrar:</strong> la matrícula debe existir y estar <code>ACTIVA</code>, y el corte no puede tener nota. Un segundo registro del mismo corte se rechaza con un mensaje que indica usar <code>PUT</code>.</li>
+    <li><strong>Corregir:</strong> también exige que la matrícula siga activa. Guarda el nuevo usuario y la nueva fecha.</li>
+    <li><strong>Promedio:</strong> <code>calcularPromedio</code> divide por la suma de los pesos de los cortes registrados. Con los cortes 1 y 2 (4.5 y 3.0) da <code>(4.5×0.3 + 3.0×0.3) / 0.6 = 3.75</code>; con los tres cortes es la nota definitiva.</li>
+    <li><strong>400 o 404:</strong> una matrícula inexistente en el <em>cuerpo</em> de un POST es un error de datos (<code>400</code>). En la <em>ruta</em> del resumen es un recurso que no existe (<code>404</code>). Por eso <code>verificarMatriculaActiva</code> convierte el <code>NotFoundException</code> en <code>BusinessException</code>.</li>
+    <li><strong>Mis notas:</strong> el ESTUDIANTE no tiene permiso sobre <code>GET /api/matriculas/{id}</code>. Por eso <code>misCalificaciones</code> usa <code>GET /api/matriculas/mias</code> (de <a href="extension-e4-mis-matriculas.html">E4</a>) con el token del propio estudiante, y luego busca las notas en su base local.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>Paso 6 — El controlador y el usuario autenticado</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/controller/CalificacionController.java</code></p>
+<pre><code>package co.edu.calificacionesservice.controller;
+
+import co.edu.calificacionesservice.api.ApiResponse;
+import co.edu.calificacionesservice.api.ResponseBuilder;
+import co.edu.calificacionesservice.dto.CalificacionCreateDTO;
+import co.edu.calificacionesservice.dto.CalificacionDTO;
+import co.edu.calificacionesservice.dto.CalificacionUpdateDTO;
+import co.edu.calificacionesservice.dto.ResumenCalificacionesDTO;
+import co.edu.calificacionesservice.handler.CalificacionHandler;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/calificaciones")
+public class CalificacionController {
+
+    private final CalificacionHandler handler;
+
+    public CalificacionController(CalificacionHandler handler) {
+        this.handler = handler;
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;ApiResponse&lt;CalificacionDTO&gt;&gt; registrar(
+            @Valid @RequestBody CalificacionCreateDTO in,
+            @Parameter(hidden = true) Authentication authentication) {
+        return ResponseBuilder.created("Calificación registrada", handler.registrar(in, authentication.getName()));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;ApiResponse&lt;CalificacionDTO&gt;&gt; actualizar(
+            @Parameter(description = "Id de la calificación", required = true)
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CalificacionUpdateDTO in,
+            @Parameter(hidden = true) Authentication authentication) {
+        return ResponseBuilder.ok("Calificación actualizada", handler.actualizar(id, in, authentication.getName()));
+    }
+
+    @GetMapping("/matricula/{matriculaId}")
+    public ResponseEntity&lt;ApiResponse&lt;ResumenCalificacionesDTO&gt;&gt; resumen(
+            @Parameter(description = "Id de la matrícula", required = true)
+            @PathVariable("matriculaId") Long matriculaId) {
+        return ResponseBuilder.ok("OK", handler.resumen(matriculaId));
+    }
+
+    @GetMapping("/mias")
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;ResumenCalificacionesDTO&gt;&gt;&gt; misCalificaciones() {
+        return ResponseBuilder.ok("OK", handler.misCalificaciones());
+    }
+}</code></pre>
+  <p>El parámetro <code>Authentication</code> lo inyecta Spring Security con lo que guardó el filtro. <code>authentication.getName()</code> es el usuario del token: el cliente no puede enviar ni falsificar <code>registradoPor</code>. <code>@Parameter(hidden = true)</code> evita que Swagger lo muestre como un campo.</p>
+</section>
+
+<section class="card">
+  <h2>Paso 7 — Seguridad por rol</h2>
+  <p class="file">Archivo: <code>calificaciones-service/src/main/java/co/edu/calificacionesservice/config/SecurityConfig.java</code></p>
+<pre><code>.requestMatchers(HttpMethod.GET, "/api/calificaciones/mias").hasAuthority("ESTUDIANTE")
+.requestMatchers(HttpMethod.GET, "/api/calificaciones/**").hasAnyAuthority("ADMIN", "DOCENTE")
+.requestMatchers(HttpMethod.POST, "/api/calificaciones/**").hasAnyAuthority("ADMIN", "DOCENTE")
+.requestMatchers(HttpMethod.PUT, "/api/calificaciones/**").hasAnyAuthority("ADMIN", "DOCENTE")</code></pre>
+  <p>Igual que en E4, la regla específica de <code>/mias</code> va antes de la general.</p>
+</section>
+
+<section class="card">
+  <h2>Verificación</h2>
+  <p>Parta de una matrícula activa del estudiante 1 (id 1) y otra anulada (id 2), como queda después de la verificación de <a href="extension-e2-cupos.html">E2</a>. Swagger de calificaciones: <code>http://localhost:8085/swagger-ui.html</code>.</p>
+  <table><thead><tr><th>#</th><th>Usuario</th><th>Acción</th><th>Resultado esperado</th></tr></thead><tbody>
+    <tr><td>1</td><td>DOCENTE</td><td><code>POST</code> <code>{"matriculaId":1,"corte":1,"nota":4.0}</code></td><td><code>201</code>, <code>"registradoPor": "docente"</code></td></tr>
+    <tr><td>2</td><td>DOCENTE</td><td><code>POST</code> <code>{"matriculaId":1,"corte":2,"nota":3.0}</code></td><td><code>201</code></td></tr>
+    <tr><td>3</td><td>DOCENTE</td><td>Repetir el paso 1</td><td><code>400</code> "…use PUT para corregirla"</td></tr>
+    <tr><td>4</td><td>DOCENTE</td><td><code>POST</code> con <code>"corte":4, "nota":5.5</code></td><td><code>400</code> con los errores de ambos campos</td></tr>
+    <tr><td>5</td><td>DOCENTE</td><td><code>POST</code> sobre la matrícula anulada (id 2)</td><td><code>400</code> "La matrícula 2 no está activa"</td></tr>
+    <tr><td>6</td><td>ADMIN</td><td><code>PUT /api/calificaciones/1</code> con <code>{"nota":4.5}</code></td><td><code>200</code>, <code>"registradoPor": "admin"</code></td></tr>
+    <tr><td>7</td><td>DOCENTE</td><td><code>GET /api/calificaciones/matricula/1</code></td><td><code>"promedioPonderado": 3.75</code>, <code>"completa": false</code></td></tr>
+    <tr><td>8</td><td>DOCENTE</td><td><code>GET /api/calificaciones/matricula/99</code></td><td><code>404</code></td></tr>
+    <tr><td>9</td><td>ESTUDIANTE</td><td><code>POST /api/calificaciones</code></td><td><code>403</code></td></tr>
+    <tr><td>10</td><td>ESTUDIANTE</td><td><code>GET /api/calificaciones/mias</code></td><td>Solo el resumen de sus matrículas</td></tr>
+  </tbody></table>
+  <p>Pruebas automatizadas: <code>CalificacionServiceImplTest</code> (8 casos, incluidos los dos cálculos de promedio).</p>
+</section>
+
+<section class="card">
+  <h2>Preguntas de análisis</h2>
+  <ol>
+    <li>La regla "una nota por corte" está en el servicio <strong>y</strong> en la base de datos. ¿Qué protege cada una que la otra no?</li>
+    <li>¿Qué pasa con las notas si una matrícula se anula después de calificada? ¿Deberían conservarse? Justifique.</li>
+    <li>¿Por qué <code>registradoPor</code> se toma del token y no del cuerpo de la petición?</li>
+    <li>Explique la diferencia entre el <code>400</code> del paso 5 y el <code>404</code> del paso 8 de la verificación.</li>
+    <li>Para "mis notas", calificaciones no puede consultar <code>GET /api/matriculas/{id}</code> con el token del estudiante. ¿Por qué? ¿Qué otras soluciones habría (por ejemplo, un token propio del servicio)? Compare.</li>
+    <li>¿Qué ventajas tuvo crear este servicio aparte en lugar de agregar las notas a <code>matriculas-service</code>? ¿Qué costos agregó?</li>
+  </ol>
+</section>
+
+<div class="footer">Ingeniería de Software III · Proyecto final guiado · Guía de análisis</div>
+  </div>
+</main>
+</body>
+</html>
